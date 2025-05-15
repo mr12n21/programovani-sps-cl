@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorting Visualizer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Sorting Algorithm Visualizer</h1>
+  <div class="controls">
+    <select id="algorithm-select">
+      <option value="quickSort">Quick Sort</option>
+      <option value="heapSort">Heap Sort</option>
+      <option value="shellSort">Shell Sort</option>
+      <option value="pigeonholeSort">Pigeonhole Sort</option>
+    </select>
+    <button id="start-button">Start Sorting</button>
+    <button id="shuffle-button">Shuffle Array</button>
+  </div>
+  <div id="array-container"></div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
