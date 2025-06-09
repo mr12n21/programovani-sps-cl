@@ -9,7 +9,8 @@ export async function countingSort(arr, draw, sleep) {
   }
 
   const range = max - min + 1;
-  const count = new Array(range).fill(0);
+  const count = [];
+  for (let i = 0; i < range; i++) count[i] = 0;
 
   for (let i = 0; i < arr.length; i++) {
     count[arr[i] - min]++;
@@ -22,7 +23,8 @@ export async function countingSort(arr, draw, sleep) {
     await sleep(5);
   }
 
-  const output = new Array(arr.length);
+  const output = [];
+  for (let i = 0; i < arr.length; i++) output[i] = 0;
 
   for (let i = arr.length - 1; i >= 0; i--) {
     const value = arr[i];
