@@ -5,6 +5,8 @@ import { heapSort } from './algorithms/heapSort.js';
 import { shellSort } from './algorithms/shellSort.js';
 import { pigeonholeSort } from './algorithms/pigeonholeSort.js';
 import { countingSort } from './algorithms/countingSort.js';
+import { radixSort } from './algorithms/radixSort.js';
+
 
 const arraySize = 50;
 let array = generateArray(arraySize);
@@ -39,6 +41,9 @@ document.getElementById('start-button').addEventListener('click', async () => {
       break;
     case 'countingSort':
       await countingSort(arrayCopy, drawArray, sleep);
+      break;
+    case 'radixSort':
+      await radixSort(arrayCopy, drawArray, sleep);
       break;
   }
   array = arrayCopy;
