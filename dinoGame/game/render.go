@@ -20,14 +20,14 @@ func Render(p *Player, obs []Obstacle, score int) {
 	for x := 0; x < Width; x++ {
 		buf[Height-1][x] = "─"
 	}
-	sym := "🦖"
+	sym := "v"
 	if p.IsDucking {
 		sym = "v"
 	} else if p.IsJumping {
 		if p.Velocity > 0 {
-			sym = "↑"
+			sym = "v"
 		} else {
-			sym = "↓"
+			sym = "v"
 		}
 	}
 	for w := 0; w < 2; w++ {
