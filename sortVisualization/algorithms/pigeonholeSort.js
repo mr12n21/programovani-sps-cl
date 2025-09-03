@@ -33,11 +33,6 @@ export async function pigeonholeSort(arr, draw, sleep, stats = { comparisons: 0,
   }
 }
 
-
-
-
-
-
 export async function testingPigeonholeSort(arr, draw, sleep, stats = { comparisons: 0, swaps: 0, containerIndex: 1 }) {
     let min = arr[0];
     let max = arr[0];
