@@ -1,0 +1,4 @@
+1. list
+vytvorte seznam cisel cisla = [4, 7, 1, 8, 3, 7, 1].
+odstrante duplicity ale zachovejte poradi prvku ipraveny seznam vypsat
+seradte sezma, vezstupne a vypiste

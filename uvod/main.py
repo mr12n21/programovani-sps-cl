@@ -1,17 +1,24 @@
-import math
+cisla = [4, 7, 1, 8, 3, 7, 1]
+print("puvodni:", cisla)
 
-def obsah_podstavy(r):
-    return math.pi * r ** 2
+upraveny_seznam = list(dict.fromkeys(cisla))
+print("bez duplicit:", upraveny_seznam)
 
-def obsah_plaste(r, v):
-    return 2 * math.pi * r * v
+serazeny_seznam = sorted(upraveny_seznam)
+print("serazeny:", serazeny_seznam)
+print("nejmensi:", serazeny_seznam[0])
+print("nejvetsi:", serazeny_seznam[-1])
 
-def objem_valce(r, v):
-    return obsah_podstavy(r) * v
+osoba = ("marek", "broz", 2)
+jmeno, prijmeni, vek = osoba
+print(f"jmeno prijmeni: {jmeno} {prijmeni} vek {vek} let.")
 
-r = float(input("Zadej poloměr podstavy (cm): "))
-v = float(input("Zadej výšku válce (cm): "))
+A = {"jablko", "banán", "hruška"}
+B = {"banán", "pomeranč", "hruška"}
+print("Mnozina A:", A)
+print("Mnozina B:", B)
 
-print(f"Obsah podstavy: {obsah_podstavy(r):.2f}")
-print(f"Obsah pláště: {obsah_plaste(r, v):.2f}")
-print(f"Objem válce: {objem_valce(r, v):.2f}")
+print("Prunik A a B:", A & B)
+print("Prvky jen v prvni mnozine:", A - B)
+print("Prvky v obou mnozinach bez duplicit:", A | B)
+print("Prvky jen v jedne mnozine:", A ^ B)
