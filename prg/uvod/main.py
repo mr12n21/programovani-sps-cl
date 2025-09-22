@@ -12,9 +12,10 @@ print("nejvetsi:", serazeny_seznam[-1])
 osoba = ("marek", "broz", 2)
 jmeno, prijmeni, vek = osoba
 print(f"jmeno prijmeni: {jmeno} {prijmeni} vek {vek} let.")
+print(osoba)
 
-A = {"jablko", "banán", "hruška"}
-B = {"banán", "pomeranč", "hruška"}
+A = {"jablko", "banan", "hruska"}
+B = {"banan", "pomeranc", "hruska"}
 print("Mnozina A:", A)
 print("Mnozina B:", B)
 

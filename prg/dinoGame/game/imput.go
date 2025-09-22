@@ -25,6 +25,7 @@ func ReadInput(p *Player) {
 			p.IsJumping = true
 			p.Velocity = 5
 		}
+		
 	case 's', 'S':
 		if !p.IsJumping {
 			p.IsDucking = true
