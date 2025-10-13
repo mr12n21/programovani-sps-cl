@@ -24,6 +24,36 @@ void text_to_morse(char *text) {
     printf("\n");
 }
 
+void morse_to_text(char *morse) {
+    const char *morse_code[] = {
+        ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", 
+        "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
+        "..-", "...-", ".--", "-..-", "-.--", "--..",
+        "-----", ".----", "..---", "...--", "....-",
+        ".....", "-....", "--...", "---..", "----."
+    };
+
+    char *token = strtok(morse, " ");
+    while (token != NULL) {
+        if (strcmp(token, "/") == 0) {
+            printf(" ");
+        } else {
+            for (int i = 0; i < 36; i++) {
+                if (strcmp(token, morse_code[i]) == 0) {
+                    if (i < 26) {
+                        printf("%c", 'A' + i);
+                    } else {
+                        printf("%c", '0' + (i - 26));
+                    }
+                    break;
+                }
+            }
+        }
+        token = strtok(NULL, " ");
+    }
+    printf("\n");
+}
+
 int main() {
     char text[100];
     printf("Zadej text: ");
@@ -31,7 +61,8 @@ int main() {
 
     text[strcspn(text, "\n")] = '\0';
 
-    printf("Morse: ");
+    printf("Output: ");
     text_to_morse(text);
+    morse_to_text(text);
     return 0;
 }
