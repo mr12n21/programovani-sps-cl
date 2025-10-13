@@ -2,67 +2,71 @@
 #include <string.h>
 #include <ctype.h>
 
-void text_to_morse(char *text) {
-    const char *morse_code[] = {
-        ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", 
-        "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
-        "..-", "...-", ".--", "-..-", "-.--", "--..",
-        "-----", ".----", "..---", "...--", "....-",
-        ".....", "-....", "--...", "---..", "----."
-    };
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
+const char *MORSE_CODE[] = {
+    ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
+    "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
+    "..-", "...-", ".--", "-..-", "-.--", "--..",
+    "-----", ".----", "..---", "...--", "....-",
+    ".....", "-....", "--...", "---..", "----."
+};
+
+void text_to_morse(const char *text) {
     for (int i = 0; text[i] != '\0'; i++) {
-        char c = toupper(text[i]);
+        char c = toupper((unsigned char)text[i]);
         if (c >= 'A' && c <= 'Z') {
-            printf("%s ", morse_code[c - 'A']);
+            printf("%s ", MORSE_CODE[c - 'A']);
         } else if (c >= '0' && c <= '9') {
-            printf("%s ", morse_code[c - '0' + 26]);
-        } else if (c == ' ') {
+            printf("%s ", MORSE_CODE[c - '0' + 26]);
+        } else if (isspace(c)) {
             printf("/ ");
         }
     }
     printf("\n");
 }
 
-void morse_to_text(char *morse) {
-    const char *morse_code[] = {
-        ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", 
-        "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
-        "..-", "...-", ".--", "-..-", "-.--", "--..",
-        "-----", ".----", "..---", "...--", "....-",
-        ".....", "-....", "--...", "---..", "----."
-    };
-
-    char *token = strtok(morse, " ");
-    while (token != NULL) {
-        if (strcmp(token, "/") == 0) {
-            printf(" ");
-        } else {
-            for (int i = 0; i < 36; i++) {
-                if (strcmp(token, morse_code[i]) == 0) {
-                    if (i < 26) {
-                        printf("%c", 'A' + i);
-                    } else {
-                        printf("%c", '0' + (i - 26));
-                    }
-                    break;
-                }
-            }
+char morse_to_char(const char *code) {
+    for (int i = 0; i < ARRAY_SIZE(MORSE_CODE); i++) {
+        if (strcmp(code, MORSE_CODE[i]) == 0) {
+            return (i < 26) ? ('A' + i) : ('0' + (i - 26));
         }
-        token = strtok(NULL, " ");
+    }
+    return '?';
+}
+
+void morse_to_text(const char *morse) {
+    char buffer[8];
+    int j = 0;
+
+    for (int i = 0; ; i++) {
+        if (morse[i] == ' ' || morse[i] == '\0') {
+            buffer[j] = '\0';
+            if (strcmp(buffer, "/") == 0) {
+                printf(" ");
+            } else if (j > 0) {
+                printf("%c", morse_to_char(buffer));
+            }
+            j = 0;
+
+            if (morse[i] == '\0')
+                break;
+        } else {
+            buffer[j++] = morse[i];
+        }
     }
     printf("\n");
 }
 
 int main() {
-    char text[100];
-    printf("Zadej text: ");
-    fgets(text, sizeof(text), stdin);
+    char input[256];
+    int volba;
 
-    text[strcspn(text, "\n")] = '\0';
+    printf("Imput: ");
+    fgets(input, sizeof(input), stdin);
+    input[strcspn(input, "\n")] = '\0';
 
     printf("Output: ");
-    text_to_morse(text);
-    morse_to_text(text);
+    text_to_morse(input); morse_to_text(input);
     return 0;
 }
