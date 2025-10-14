@@ -4,6 +4,9 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 
+#define MAX_INPUT 256
+#define MAX_MORSE_TOKEN 8
+
 const char *MORSE_CODE[] = {
     ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
     "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-",
@@ -27,9 +30,9 @@ void text_to_morse(const char *text) {
 }
 
 char morse_to_char(const char *code) {
-    for (int i = 0; i < ARRAY_SIZE(MORSE_CODE); i++) {
+    for (size_t i = 0; i < ARRAY_SIZE(MORSE_CODE); i++) {
         if (strcmp(code, MORSE_CODE[i]) == 0) {
-            return (i < 26) ? ('A' + i) : ('0' + (i - 26));
+            return i < 26 ? 'A' + i : '0' + (i - 26);
         }
     }
     return '?';
