@@ -11,9 +11,10 @@ func RunGame() {
 	obs := []Obstacle{}
 	frame, score := 0, 0
 	for {
-		if frame%20 == 0 {
+		if frame%30 == 0 {
 			obs = append(obs, SpawnObstacle())
 		}
+
 		ReadInput(&p)
 		if p.IsJumping {
 			p.Y -= p.Velocity
@@ -55,6 +56,7 @@ func RunGame() {
 		score++
 		Render(&p, obs, score)
 		Sleep(50)
-		frame++
+		frame = (frame + 3)
+
 	}
 }

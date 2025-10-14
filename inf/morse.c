@@ -15,20 +15,22 @@ const char *MORSE_CODE[] = {
     ".....", "-....", "--...", "---..", "----."
 };
 
-void text_to_morse(const char *text) {
+static void text_to_morse(const char *text) {
     for (int i = 0; text[i] != '\0'; i++) {
         char c = toupper((unsigned char)text[i]);
         if (c >= 'A' && c <= 'Z') {
-            printf("%s ", MORSE_CODE[c - 'A']);
+            fputs(MORSE_CODE[c - 'A'], stdout);
+            putchar(' ');
         } else if (c >= '0' && c <= '9') {
-            printf("%s ", MORSE_CODE[c - '0' + 26]);
+            fputs(MORSE_CODE[c - '0' + 26], stdout);
+            putchar(' ');
         } else if (isspace(c)) {
-            printf("/ ");
+            putchar('/');
+            putchar(' ');
         }
     }
-    printf("\n");
+    putchar('\n');
 }
-
 char morse_to_char(const char *code) {
     for (size_t i = 0; i < ARRAY_SIZE(MORSE_CODE); i++) {
         if (strcmp(code, MORSE_CODE[i]) == 0) {
