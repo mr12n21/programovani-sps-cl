@@ -38,6 +38,7 @@ char morse_to_char(const char *code) {
         }
     }
     return '?';
+    
 }
 
 void morse_to_text(const char *morse) {
