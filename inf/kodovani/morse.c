@@ -1,11 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-
-#define MAX_INPUT 256
-#define MAX_MORSE_TOKEN 8
+#include "morse.h"
 
 const char *MORSE_CODE[] = {
     ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---",
@@ -15,7 +11,8 @@ const char *MORSE_CODE[] = {
     ".....", "-....", "--...", "---..", "----."
 };
 
-static void text_to_morse(const char *text) {
+void text_to_morse(const char *text) {
+    printf("Morse:\n");
     for (int i = 0; text[i] != '\0'; i++) {
         char c = toupper((unsigned char)text[i]);
         if (c >= 'A' && c <= 'Z') {
@@ -24,55 +21,44 @@ static void text_to_morse(const char *text) {
         } else if (c >= '0' && c <= '9') {
             fputs(MORSE_CODE[c - '0' + 26], stdout);
             putchar(' ');
-        } else if (isspace(c)) {
+        } else if (isspace((unsigned char)c)) {
             putchar('/');
             putchar(' ');
+        } else {
+            printf("? ");
         }
     }
     putchar('\n');
 }
+
 char morse_to_char(const char *code) {
-    for (size_t i = 0; i < ARRAY_SIZE(MORSE_CODE); i++) {
+    for (size_t i = 0; i < sizeof(MORSE_CODE)/sizeof(MORSE_CODE[0]); i++) {
         if (strcmp(code, MORSE_CODE[i]) == 0) {
-            return i < 26 ? 'A' + i : '0' + (i - 26);
+            if (i < 26) return 'A' + i;
+            else return '0' + (i - 26);
         }
     }
     return '?';
-    
 }
 
 void morse_to_text(const char *morse) {
-    char buffer[8];
-    int j = 0;
-
-    for (int i = 0; ; i++) {
-        if (morse[i] == ' ' || morse[i] == '\0') {
-            buffer[j] = '\0';
-            if (strcmp(buffer, "/") == 0) {
-                printf(" ");
-            } else if (j > 0) {
-                printf("%c", morse_to_char(buffer));
+    char buf[16];
+    size_t b = 0;
+    printf("Morse -> Text:\n");
+    for (size_t i = 0; ; i++) {
+        char ch = morse[i];
+        if (ch == ' ' || ch == '\0') {
+            if (b == 1 && buf[0] == '/') {
+                putchar(' ');
+            } else if (b > 0) {
+                buf[b] = '\0';
+                putchar(morse_to_char(buf));
             }
-            j = 0;
-
-            if (morse[i] == '\0')
-                break;
+            b = 0;
+            if (ch == '\0') break;
         } else {
-            buffer[j++] = morse[i];
+            if (b < sizeof(buf)-1) buf[b++] = ch;
         }
     }
-    printf("\n");
-}
-
-int main() {
-    char input[256];
-    int volba;
-
-    printf("Imput: ");
-    fgets(input, sizeof(input), stdin);
-    input[strcspn(input, "\n")] = '\0';
-
-    printf("Output: ");
-    text_to_morse(input); morse_to_text(input);
-    return 0;
+    putchar('\n');
 }
