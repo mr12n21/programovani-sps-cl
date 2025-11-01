@@ -12,8 +12,8 @@ const char *CLASS = "INF3";
 
 void print_header() {
     printf("=========================================\n");
-    printf("  Datové struktury v kódování\n");
-    printf("  Autor: %s, třída: %s\n", AUTHOR, CLASS);
+    printf("  Datove struktury v kodovani\n");
+    printf("  Autor: %s, trida: %s\n", AUTHOR, CLASS);
     printf("=========================================\n");
 }
 
@@ -21,7 +21,25 @@ void read_line(char *buf, size_t size) {
     if (fgets(buf, (int)size, stdin)) {
         size_t len = strlen(buf);
         if (len > 0 && buf[len - 1] == '\n') buf[len - 1] = '\0';
-    } else buf[0] = '\0';
+    } else {
+        buf[0] = '\0';
+    }
+}
+
+int ensure_input(char *input, size_t size) {
+    if (input[0] != '\0') return 1;
+
+    printf("zadat text (y/n): ");
+    char opt[8];
+    read_line(opt, sizeof(opt));
+    if (opt[0] == 'y' || opt[0] == 'Y') {
+        printf("Zadej text:\n");
+        read_line(input, size);
+        if (input[0] != '\0') return 1;
+        printf("error\n");
+        return 0;
+    }
+    return 0;
 }
 
 int main(void) {
@@ -33,11 +51,11 @@ int main(void) {
     while (1) {
         printf("\nMenu:\n");
         printf("1) Zadat text\n");
-        printf("2) Binární kódování (UNICODE styl)\n");
+        printf("2) Binarni kodovani\n");
         printf("3) Morseova abeceda\n");
-        printf("4) Huffmanovo kódování\n");
+        printf("4) Huffmanovo kodovani\n");
         printf("5) Konec\n");
-        printf("Vyber (1-5): ");
+        printf("Vyber: ");
 
         char opt[8];
         read_line(opt, sizeof(opt));
@@ -48,27 +66,40 @@ int main(void) {
                 printf("Zadej text:\n");
                 read_line(input, sizeof(input));
                 break;
+
             case 2:
-                if (*input) text_to_binary_unicode((unsigned char*)input);
-                else printf("Zadej nejprve text!\n");
+                if (!ensure_input(input, sizeof(input))) {
+                    printf("Akce zrušena. Nejprve zadej text.\n");
+                } else {
+                    text_to_binary_unicode((unsigned char*)input);
+                }
                 break;
+
             case 3:
-                if (*input) {
+                if (!ensure_input(input, sizeof(input))) {
+                    printf("error\n");
+                } else {
                     printf("-- Text -> Morse --\n");
                     text_to_morse(input);
-                    printf("-- Morse -> Text --\n");
+                    printf("\n-- Morse -> Text --\n");
                     morse_to_text(input);
-                } else printf("Zadej nejprve text!\n");
+                }
                 break;
+
             case 4:
-                if (*input) do_huffman((unsigned char*)input);
-                else printf("Zadej nejprve text!\n");
+                if (!ensure_input(input, sizeof(input))) {
+                    printf("error\n");
+                } else {
+                    do_huffman((unsigned char*)input);
+                }
                 break;
+
             case 5:
-                printf("Konec programu.\n");
+                printf("end\n");
                 return 0;
+
             default:
-                printf("Neplatná volba.\n");
+                printf("error\n");
         }
     }
 }
