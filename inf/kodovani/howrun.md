@@ -21,6 +21,6 @@ po kompilaci:
 
 ## Info
 Program umoznuje:
-    prevod textu do binárního kodu
-    preklad do Morseovy abecedy
-    kompresi pomoci Huffmanova kodovani
+-prevod textu do binárního kodu
+-preklad do Morseovy abecedy
+-kompresi pomoci Huffmanova kodovani
