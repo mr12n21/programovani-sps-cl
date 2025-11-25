@@ -6,7 +6,7 @@ from demo_data import napln_demo_data
 
 def main():
     knihovna = Knihovna()
-    napln_demo_data(knihovna)  # Načte demo data
+    napln_demo_data(knihovna)
 
     while True:
         print("\n" + "="*50)
