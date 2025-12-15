@@ -1,24 +1,9 @@
 #!/bin/bash
+set -euo pipefail
 
-echo "Soubor | Původní velikost (B) | Velikost tar.gz (B) | Úspora (%)"
-echo "-------------------------------------------------------------"
+# Spustí Python skript pro generování souborů, kompresi (GZIP/BZIP2/XZ)
+# a vytvoření tabulky s výsledky do vysledek.md
 
-for file in *.txt *.png; do
-    [ -f "$file" ] || continue
+python3 "$(dirname "$0")/generate_and_compress.py"
 
-    original_size=$(stat -c %s "$file")
-
-    archive="${file}.tar.gz"
-    tar -czf "$archive" "$file"
-
-    compressed_size=$(stat -c %s "$archive")
-
-    compression_percent=$(awk "BEGIN {
-        if ($original_size == 0) print 0;
-        else print ((($original_size - $compressed_size) / $original_size) * 100)
-    }")
-
-    compression_percent=$(printf "%.2f" "$compression_percent")
-
-    echo "$file | $original_size | $compressed_size | $compression_percent %"
-done
+echo "Hotovo. Viz inf/komprese/vysledek.md a komprimované soubory (.gz/.bz2/.xz)."
