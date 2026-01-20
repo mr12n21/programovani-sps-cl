@@ -41,15 +41,12 @@ class Animal(ABC):
         if not isinstance(other, Animal):
             return None
         
-        # Pokud mají různou úroveň, vyhraje vyšší úroveň
         if self.level != other.level:
             return self if self.level > other.level else other
         
-        # Pokud mají různý typ a stejnou úroveň, nic se neděje
         if self.animal_type != other.animal_type:
             return None
         
-        # Stejný typ a úroveň -> evoluce
         return self.evolve()
     
     def __sub__(self, other: 'Animal') -> Optional['Animal']:
