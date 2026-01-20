@@ -1,0 +1,5 @@
+napis mi zakladni docker ktery bude delan tak ze bude rojety keyloak ve kterem budou uzivatele: ucitel co spravuje praxe tak se mu budu resit to ze se udela razeni kam kdo na praxe pujde
+nasledne bude mit moznost ty zaznamy editovat a koukat na zaky
+druha cast je ta ze bude system znamkovani a dochazky
+na email prijde ze serveru mail ktery bude obsahovat dotazik ktery bude zaznamenavat cas kdy prisel a jestli prisel to nasledne vidi ucitel v aplikaci
+navrhni mi celou aplikaci a rekni mi technologoie ktere pouzit pro rychloud a velmy bezpecnou strukturu a take res to aby system byl v docker compose
