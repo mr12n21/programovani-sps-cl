@@ -147,5 +147,5 @@ func (g *Game) DisplayGameOver() {
 	fmt.Printf("  Psi:    %d/3\n", g.Board.GetHighestLevel(animal.Dog))
 	fmt.Printf("  Kočky:  %d/3\n", g.Board.GetHighestLevel(animal.Cat))
 	fmt.Printf("  Tahů:   %d\n", g.Moves)
-	fmt.Println("==================================================" + "\n")
+	fmt.Println("==================================================")
 }

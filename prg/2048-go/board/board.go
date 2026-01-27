@@ -1,4 +1,3 @@
-// Package board implementuje logiku herní desky
 package board
 
 import (
@@ -9,14 +8,12 @@ import (
 	"2048-go/animal"
 )
 
-// Board reprezentuje herní desku 4x4
 type Board struct {
 	Grid    [4][4]animal.Animal
 	History [][4][4]animal.Animal
 	rng     *rand.Rand
 }
 
-// NewBoard vytvoří novou herní desku
 func NewBoard() *Board {
 	b := &Board{
 		History: make([][4][4]animal.Animal, 0),
@@ -27,7 +24,6 @@ func NewBoard() *Board {
 	return b
 }
 
-// AddRandomAnimal přidá náhodné zvíře na prázdné místo
 func (b *Board) AddRandomAnimal(forceType string) bool {
 	emptyCells := make([][2]int, 0)
 	for i := 0; i < 4; i++ {
@@ -45,7 +41,6 @@ func (b *Board) AddRandomAnimal(forceType string) bool {
 	cell := emptyCells[b.rng.Intn(len(emptyCells))]
 	row, col := cell[0], cell[1]
 
-	// Pokud není určen typ, vybere se náhodně
 	animalType := forceType
 	if animalType == "" {
 		types := []string{"dog", "cat"}
@@ -61,7 +56,6 @@ func (b *Board) AddRandomAnimal(forceType string) bool {
 	return true
 }
 
-// SaveState uloží aktuální stav desky do historie
 func (b *Board) SaveState() {
 	var state [4][4]animal.Animal
 	for i := 0; i < 4; i++ {
@@ -74,7 +68,6 @@ func (b *Board) SaveState() {
 	b.History = append(b.History, state)
 }
 
-// Undo vrátí poslední tah
 func (b *Board) Undo() bool {
 	if len(b.History) == 0 {
 		return false
@@ -84,7 +77,6 @@ func (b *Board) Undo() bool {
 	return true
 }
 
-// Move provede pohyb na desce
 func (b *Board) Move(direction string, player animal.AnimalType) bool {
 	b.SaveState()
 	originalBoard := b.copyGrid()
@@ -103,13 +95,11 @@ func (b *Board) Move(direction string, player animal.AnimalType) bool {
 		return false
 	}
 
-	// Pokud se deska nezměnila, vrátí false
 	if b.boardsEqual(originalBoard, b.Grid) {
 		b.History = b.History[:len(b.History)-1]
 		return false
 	}
 
-	// Přidá nové zvíře
 	b.AddRandomAnimal("")
 	return true
 }
@@ -214,7 +204,6 @@ func (b *Board) merge(animals []animal.Animal, player animal.AnimalType) []anima
 }
 
 func (b *Board) mergeReverse(animals []animal.Animal, player animal.AnimalType) []animal.Animal {
-	// Otočí pole
 	reversed := make([]animal.Animal, len(animals))
 	for i := 0; i < len(animals); i++ {
 		reversed[i] = animals[len(animals)-1-i]
@@ -222,7 +211,6 @@ func (b *Board) mergeReverse(animals []animal.Animal, player animal.AnimalType) 
 
 	merged := b.merge(reversed, player)
 
-	// Otočí zpět
 	result := make([]animal.Animal, len(merged))
 	for i := 0; i < len(merged); i++ {
 		result[i] = merged[len(merged)-1-i]
@@ -231,9 +219,7 @@ func (b *Board) mergeReverse(animals []animal.Animal, player animal.AnimalType) 
 	return result
 }
 
-// IsGameOver zkontroluje, zda je hra skončena
 func (b *Board) IsGameOver() bool {
-	// Pokud jsou volná místa, hra neskončila
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
 			if b.Grid[i][j] == nil {
@@ -242,12 +228,10 @@ func (b *Board) IsGameOver() bool {
 		}
 	}
 
-	// Zkontroluje možné slučovací tahy
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
 			current := b.Grid[i][j]
 
-			// Kontrola vpravo
 			if j < 3 {
 				right := b.Grid[i][j+1]
 				if b.canCombine(current, right) {
@@ -255,7 +239,6 @@ func (b *Board) IsGameOver() bool {
 				}
 			}
 
-			// Kontrola dolů
 			if i < 3 {
 				down := b.Grid[i+1][j]
 				if b.canCombine(current, down) {
@@ -272,12 +255,10 @@ func (b *Board) canCombine(a1, a2 animal.Animal) bool {
 	if a1 == nil || a2 == nil {
 		return false
 	}
-	// Mohou se spojit, pokud mají stejný typ a úroveň, nebo různé úrovně
 	return (a1.GetType() == a2.GetType() && a1.GetLevel() == a2.GetLevel()) ||
 		(a1.GetLevel() != a2.GetLevel())
 }
 
-// HasPlayerWon zkontroluje, zda hráč vyhrál
 func (b *Board) HasPlayerWon(player animal.AnimalType) bool {
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 4; j++ {
@@ -290,7 +271,6 @@ func (b *Board) HasPlayerWon(player animal.AnimalType) bool {
 	return false
 }
 
-// GetHighestLevel vrací nejvyšší úroveň zvířete daného hráče
 func (b *Board) GetHighestLevel(player animal.AnimalType) int {
 	maxLevel := 0
 	for i := 0; i < 4; i++ {
@@ -306,7 +286,6 @@ func (b *Board) GetHighestLevel(player animal.AnimalType) int {
 	return maxLevel
 }
 
-// Display zobrazí hrací desku
 func (b *Board) Display() {
 	fmt.Println("\n" + "========================================")
 	for i := 0; i < 4; i++ {
@@ -324,7 +303,7 @@ func (b *Board) Display() {
 		}
 		fmt.Println(rowStr)
 	}
-	fmt.Println("========================================\n")
+	fmt.Println("========================================")
 }
 
 func (b *Board) copyGrid() [4][4]animal.Animal {
