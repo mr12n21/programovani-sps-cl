@@ -98,29 +98,7 @@ func (g *Game) DisplayState() {
 
 // DisplayRules zobrazí pravidla hry
 func (g *Game) DisplayRules() {
-	fmt.Println("\n" + "==================================================")
-	fmt.Println("PRAVIDLA HRY 2048")
 	fmt.Println("==================================================")
-	fmt.Println(`
-Dva hráči si střídají tahy:
-1. Hráč s psy (štěně → pes → vlk)
-2. Hráč s kočkami (kotě → kočka → lev)
-
-SLUČOVÁNÍ ZVÍŘAT:
-- Stejný typ + stejná úroveň = evoluce (vyšší úroveň)
-- Různé typy + stejná úroveň = nic (pokud je to typ aktuálního hráče)
-- Různá úroveň = vyšší úroveň vítězí
-
-CÍL:
-- Vytvořit vlka (pro psy) nebo lva (pro kočky)
-- Nebo mít nejvyšší úroveň když už žádné tahy nejsou
-
-OVLÁDÁNÍ:
-- up, down, left, right = pohyb
-- undo = vrátit poslední tah
-- quit = konec hry
-`)
-	fmt.Println("==================================================" + "\n")
 }
 
 // GetWinnerName vrací jméno vítěze
@@ -149,19 +127,19 @@ func (g *Game) DisplayGameOver() {
 	fmt.Println("==================================================")
 
 	if g.DogWon {
-		fmt.Println("🐺 PSI ZVÍTĚZILI! 🐺")
+		fmt.Println("PSI")
 	} else if g.CatWon {
-		fmt.Println("🦁 KOČKY ZVÍTĚZILY! 🦁")
+		fmt.Println("KOČKY")
 	} else {
 		dogLevel := g.Board.GetHighestLevel(animal.Dog)
 		catLevel := g.Board.GetHighestLevel(animal.Cat)
 
 		if dogLevel > catLevel {
-			fmt.Println("🐕 PSI ZVÍTĚZILI (vyšší úroveň)! 🐕")
+			fmt.Println("PSI")
 		} else if catLevel > dogLevel {
-			fmt.Println("😺 KOČKY ZVÍTĚZILY (vyšší úroveň)! 😺")
+			fmt.Println("KOČKY")
 		} else {
-			fmt.Println("⚖️ REMÍZA! ⚖️")
+			fmt.Println("REMÍZA")
 		}
 	}
 

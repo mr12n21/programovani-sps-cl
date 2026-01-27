@@ -28,7 +28,6 @@ def redundancy(H: float, alphabet_size: int) -> float:
 
 
 def kraft_inequality(lengths):
-    # lengths: list[int] of codeword lengths in bits
     if not lengths:
         return False, 0.0
     S = sum(2 ** (-l) for l in lengths if l > 0)
@@ -46,7 +45,6 @@ class EntropyApp(tk.Tk):
         nb = ttk.Notebook(self)
         nb.pack(fill=tk.BOTH, expand=True)
 
-        # Entropy/Redundancy tab
         frame_er = ttk.Frame(nb)
         nb.add(frame_er, text="Entropie & Redundance")
 

@@ -1,9 +1,7 @@
-// Package animal definuje zvířata a jejich evoluci
 package animal
 
 import "fmt"
 
-// AnimalType reprezentuje typ zvířete
 type AnimalType string
 
 const (
@@ -11,7 +9,6 @@ const (
 	Cat AnimalType = "cat"
 )
 
-// Animal rozhraní pro všechna zvířata
 type Animal interface {
 	GetType() AnimalType
 	GetLevel() int
@@ -20,28 +17,23 @@ type Animal interface {
 	Copy() Animal
 }
 
-// BaseAnimal základní struktura pro zvířata
 type BaseAnimal struct {
 	Type  AnimalType
 	Level int
 }
 
-// GetType vrací typ zvířete
 func (a *BaseAnimal) GetType() AnimalType {
 	return a.Type
 }
 
-// GetLevel vrací úroveň zvířete
 func (a *BaseAnimal) GetLevel() int {
 	return a.Level
 }
 
-// DogAnimal struktura pro psy
 type DogAnimal struct {
 	BaseAnimal
 }
 
-// NewDog vytvoří nového psa
 func NewDog(level int) *DogAnimal {
 	return &DogAnimal{
 		BaseAnimal: BaseAnimal{
@@ -51,7 +43,6 @@ func NewDog(level int) *DogAnimal {
 	}
 }
 
-// GetName vrací jméno psa podle úrovně
 func (d *DogAnimal) GetName() string {
 	names := map[int]string{
 		1: "Štěně",

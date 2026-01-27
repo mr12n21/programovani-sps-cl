@@ -1,97 +1,78 @@
 package main
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}	}		os.Exit(1)		fmt.Fprintf(os.Stderr, "Chyba při čtení vstupu: %v\n", err)	if err := scanner.Err(); err != nil {	}		}			fmt.Printf("Neznámý příkaz: '%s'. Zadej 'help' pro nápovědu.\n\n", userInput)		default:			}				fmt.Println("Tah nebyl možný - zkus jiný směr.\n")			} else {				}					g.DisplayGameOver()				if g.GameOver {				g.DisplayState()			if g.ProcessMove(userInput) {		case "up", "down", "left", "right":			}				fmt.Println("Nelze vrátit tah - historie je prázdná.\n")			} else {				g.DisplayState()				fmt.Println("Poslední tah vrácen.\n")				g.Moves--			if g.Board.Undo() {		case "undo":			g.DisplayRules()		case "rules":			printHelp()		case "help":			return			fmt.Println("\nHra ukončena.")		case "quit", "exit":		switch userInput {		}			continue		if userInput == "" {		userInput := strings.TrimSpace(strings.ToLower(scanner.Text()))		}			break		if !scanner.Scan() {		fmt.Printf("%s, zadej tah (up/down/left/right): ", g.GetCurrentPlayerName())	for !g.GameOver {	scanner := bufio.NewScanner(os.Stdin)	g.DisplayState()	fmt.Println("Hra začíná! Prvních zvířat již bylo umístěno.\n")	g.DisplayRules()	g := game.NewGame()	printWelcome()func main() {}`)  quit, exit             - Konec hry  rules                  - Zobrazit pravidla  help                   - Zobrazit tuto nápovědu  undo                   - Vrátit poslední tah  up, down, left, right  - Pohyb zvířat v daném směruDOSTUPNÉ PŘÍKAZY:	fmt.Println(`func printHelp() {}	fmt.Println("==================================================")	fmt.Println("╚════════════════════════════════════════════════╝")	fmt.Println("║        Psi vs. Kočky: Boj o dominanci        ║")	fmt.Println("║         HRA 2048 - Tahová Strategie           ║")	fmt.Println("╔════════════════════════════════════════════════╗")	fmt.Println("\n" + "==================================================")func printWelcome() {)	"2048-go/game"	"strings"	"os"	"fmt"	"bufio"import (
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+
+	"2048-go/game"
+)
+
+func printWelcome() {
+	fmt.Println("==================================================")
+}
+
+func printHelp() {
+	fmt.Println(`
+DOSTUPNÉ PŘÍKAZY:
+  up, down, left, right  - Pohyb zvířat v daném směru
+  undo                   - Vrátit poslední tah
+  help                   - Zobrazit tuto nápovědu
+  rules                  - Zobrazit pravidla
+  quit, exit             - Konec hry`)
+}
+
+func main() {
+	printWelcome()
+	g := game.NewGame()
+	g.DisplayRules()
+	fmt.Println("start")
+	g.DisplayState()
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for !g.GameOver {
+		fmt.Printf("%s, zadej tah (up/down/left/right): ", g.GetCurrentPlayerName())
+		if !scanner.Scan() {
+			break
+		}
+		userInput := strings.TrimSpace(strings.ToLower(scanner.Text()))
+		if userInput == "" {
+			continue
+		}
+
+		switch userInput {
+		case "quit", "exit":
+			fmt.Println("\nHra ukončena.")
+			return
+		case "help":
+			printHelp()
+		case "rules":
+			g.DisplayRules()
+		case "undo":
+			if g.Board.Undo() {
+				g.Moves--
+				fmt.Println("Poslední tah vrácen.")
+				g.DisplayState()
+			} else {
+				fmt.Println("Nelze vrátit tah - historie je prázdná.")
+			}
+		case "up", "down", "left", "right":
+			if g.ProcessMove(userInput) {
+				g.DisplayState()
+				if g.GameOver {
+					g.DisplayGameOver()
+				}
+			} else {
+				fmt.Println("Tah nebyl možný - zkus jiný směr.")
+			}
+		default:
+			fmt.Printf("Neznámý příkaz: '%s'. Zadej 'help' pro nápovědu.\n\n", userInput)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintf(os.Stderr, "Chyba při čtení vstupu: %v\n", err)
+		os.Exit(1)
+	}
+}
