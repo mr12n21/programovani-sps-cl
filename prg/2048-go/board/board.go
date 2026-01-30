@@ -185,22 +185,55 @@ func (b *Board) merge(animals []animal.Animal, player animal.AnimalType) []anima
 		return []animal.Animal{}
 	}
 
-	result := []animal.Animal{animals[0]}
+	result := make([]animal.Animal, 0)
+	merged := make([]bool, len(animals))
 
-	for i := 1; i < len(animals); i++ {
-		current := animals[i]
-		last := result[len(result)-1]
-
-		merged := animal.CombineAnimals(last, current, player)
-
-		if merged != nil {
-			result[len(result)-1] = merged
-		} else {
-			result = append(result, current)
+	for i := 0; i < len(animals); i++ {
+		if merged[i] {
+			continue
 		}
+
+		if i < len(animals)-1 && !merged[i+1] &&
+			animals[i].GetType() == animals[i+1].GetType() &&
+			animals[i].GetLevel() == animals[i+1].GetLevel() {
+
+			evolved := animals[i].Evolve()
+			if evolved != nil {
+				result = append(result, evolved)
+				merged[i] = true
+				merged[i+1] = true
+				continue
+			}
+		}
+
+		result = append(result, animals[i])
+		merged[i] = true
 	}
 
-	return result
+	finalResult := make([]animal.Animal, 0)
+	for i := 0; i < len(result); i++ {
+		if i > 0 {
+			last := finalResult[len(finalResult)-1]
+			current := result[i]
+
+			if last.GetType() != current.GetType() {
+				if last.GetLevel() == current.GetLevel() {
+					finalResult = append(finalResult, current)
+					continue
+				}
+
+				if last.GetLevel() > current.GetLevel() {
+					continue
+				} else {
+					finalResult[len(finalResult)-1] = current
+					continue
+				}
+			}
+		}
+		finalResult = append(finalResult, result[i])
+	}
+
+	return finalResult
 }
 
 func (b *Board) mergeReverse(animals []animal.Animal, player animal.AnimalType) []animal.Animal {
