@@ -1,0 +1,44 @@
+[gd_scene load_steps=5 format=3 uid="uid://vapy6kvpt3fo"]
+
+[ext_resource type="Script" path="res://Scripts/Main.cs" id="1"]
+[ext_resource type="Script" path="res://Scripts/Player.cs" id="2"]
+[ext_resource type="PackedScene" uid="uid://cij6vi5suqdxf" path="res://Scenes/FallingItem.tscn" id="3"]
+
+[sub_resource type="RectangleShape2D" id="1"]
+size = Vector2(72, 28)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1")
+ItemScene = ExtResource("3")
+
+[node name="SpawnTimer" type="Timer" parent="."]
+wait_time = 0.8
+autostart = true
+
+[node name="Player" type="Area2D" parent="."]
+position = Vector2(320, 560)
+script = ExtResource("2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("1")
+
+[node name="Polygon2D" type="Polygon2D" parent="Player"]
+color = Color(0.2, 0.8, 1, 1)
+polygon = PackedVector2Array(-36, -14, 36, -14, 36, 14, -36, 14)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ScoreLabel" type="Label" parent="CanvasLayer"]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 16.0
+offset_bottom = 16.0
+theme_override_font_sizes/font_size = 24
+text = "Skóre: 0"
+
+[node name="GameOverLabel" type="Label" parent="CanvasLayer"]
+offset_left = 16.0
+offset_top = 50.0
+offset_right = 16.0
+offset_bottom = 50.0
+theme_override_font_sizes/font_size = 20
