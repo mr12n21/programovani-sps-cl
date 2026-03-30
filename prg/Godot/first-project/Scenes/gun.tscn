@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://dxfenaosj2pcy"]
+
+[ext_resource type="Script" path="res://Scripts/Gun.cs" id="1_oqrbh"]
+
+[node name="Gun" type="Node2D" node_paths=PackedStringArray("ProjectileSpawn")]
+script = ExtResource("1_oqrbh")
+ProjectileSpawn = NodePath("ProjectileSpawn")
+FireRate = 1.0
+
+[node name="ProjectileSpawn" type="Node2D" parent="."]
+position = Vector2(0, -40)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(81, 52)
+scale = Vector2(0.2, 0.2)

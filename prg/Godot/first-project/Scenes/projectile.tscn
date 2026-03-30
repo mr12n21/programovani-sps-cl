@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://dge5ruxr31bhi"]
+
+[ext_resource type="Texture2D" uid="uid://dehn3h38tkb2d" path="res://Assets/white_rect.png" id="1_f8cdk"]
+[ext_resource type="Script" path="res://Scripts/Projectile.cs" id="1_yr2qt"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yr2qt"]
+size = Vector2(100, 50)
+
+[node name="Projectile" type="Area2D"]
+collision_mask = 2
+script = ExtResource("1_yr2qt")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.2, 0.1)
+texture = ExtResource("1_f8cdk")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_yr2qt")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+rect = Rect2(-50, -25, 100, 50)
+
+[connection signal="screen_exited" from="VisibleOnScreenNotifier2D" to="." method="OnScreenExited"]

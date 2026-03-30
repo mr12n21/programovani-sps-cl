@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://qiboytqxsk41"]
+
+[ext_resource type="Script" path="res://Scripts/Game.cs" id="1_ebmjs"]
+[ext_resource type="Script" path="res://Scripts/PoolObject.cs" id="2_3dryh"]
+[ext_resource type="PackedScene" uid="uid://dhc5hhgu2tf0m" path="res://Scenes/player.tscn" id="2_qxrlw"]
+[ext_resource type="PackedScene" uid="uid://dge5ruxr31bhi" path="res://Scenes/projectile.tscn" id="3_wrm1d"]
+[ext_resource type="PackedScene" uid="uid://ll2kr18pflwy" path="res://Scenes/shooting_enemy.tscn" id="5_i6g32"]
+[ext_resource type="PackedScene" uid="uid://77qkmy3r5hsq" path="res://Scenes/melee_enemy.tscn" id="5_wowpa"]
+
+[sub_resource type="Resource" id="Resource_i6g32"]
+script = ExtResource("2_3dryh")
+Prefab = ExtResource("5_wowpa")
+PoolSize = 10
+metadata/_custom_type_script = "uid://dtpqegaoy3p7s"
+
+[sub_resource type="Resource" id="Resource_wowpa"]
+script = ExtResource("2_3dryh")
+Prefab = ExtResource("3_wrm1d")
+PoolSize = 25
+metadata/_custom_type_script = "uid://dtpqegaoy3p7s"
+
+[sub_resource type="Resource" id="Resource_1l0tm"]
+script = ExtResource("2_3dryh")
+Prefab = ExtResource("5_i6g32")
+PoolSize = 8
+metadata/_custom_type_script = "uid://dtpqegaoy3p7s"
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_i6g32"]
+vertices = PackedVector2Array(1836.0391, 1273.8984, -928.6172, 1247.0938, -854.3594, -742.1875, 1845.9531, -797.78125)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(-864, -752, 1856, -808, 1846, 1284, -939, 1257)])
+
+[node name="Game" type="Node2D" unique_id=215896949]
+script = ExtResource("1_ebmjs")
+PoolObjects = Dictionary[String, ExtResource("2_3dryh")]({
+"enemy": SubResource("Resource_i6g32"),
+"projectile": SubResource("Resource_wowpa"),
+"shooting_enemy": SubResource("Resource_1l0tm")
+})
+
+[node name="Player" parent="." unique_id=1602402484 instance=ExtResource("2_qxrlw")]
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1295192092]
+navigation_polygon = SubResource("NavigationPolygon_i6g32")
+
+

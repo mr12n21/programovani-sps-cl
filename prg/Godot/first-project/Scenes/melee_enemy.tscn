@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3 uid="uid://77qkmy3r5hsq"]
+
+[ext_resource type="Script" path="res://Scripts/MeleeEnemy.cs" id="1_287tu"]
+[ext_resource type="Texture2D" uid="uid://bg3qqel2xjdyn" path="res://Assets/enemy2.png" id="2_3au16"]
+[ext_resource type="PackedScene" uid="uid://bdc41rjm22q3" path="res://Scenes/damage_area.tscn" id="3_3au16"]
+[ext_resource type="PackedScene" uid="uid://dtkwgrew2e55q" path="res://Scenes/health_bar.tscn" id="3_afpow"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_42nby"]
+radius = 49.163
+
+[node name="MeleeEnemy" type="CharacterBody2D" node_paths=PackedStringArray("Agent", "Head")]
+collision_layer = 2
+collision_mask = 3
+motion_mode = 1
+script = ExtResource("1_287tu")
+Agent = NodePath("NavigationAgent2D")
+Head = NodePath("Head")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_42nby")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="HealthBar" parent="." node_paths=PackedStringArray("Node") instance=ExtResource("3_afpow")]
+offset_top = -72.05
+offset_bottom = -62.05
+Node = NodePath("..")
+
+[node name="DamageArea" parent="." instance=ExtResource("3_3au16")]
+
+[node name="Head" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Head"]
+scale = Vector2(0.16, 0.16)
+texture = ExtResource("2_3au16")

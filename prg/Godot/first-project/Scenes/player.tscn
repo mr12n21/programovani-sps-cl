@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://dhc5hhgu2tf0m"]
+
+[ext_resource type="Script" path="res://Scripts/Player.cs" id="1_cvnsp"]
+[ext_resource type="Texture2D" uid="uid://2iym77jwinkx" path="res://Assets/player.png" id="2_6t5aa"]
+[ext_resource type="PackedScene" uid="uid://dtkwgrew2e55q" path="res://Scenes/health_bar.tscn" id="3_6t5aa"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_wrm1d"]
+radius = 69.0652
+
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("PlayerImage")]
+collision_mask = 3
+motion_mode = 1
+script = ExtResource("1_cvnsp")
+PlayerImage = NodePath("Sprite2D")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_wrm1d")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("2_6t5aa")
+
+[node name="HealthBar" parent="." node_paths=PackedStringArray("Node") instance=ExtResource("3_6t5aa")]
+offset_top = -90.0
+offset_bottom = -80.0
+Node = NodePath("..")

@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3 uid="uid://bdc41rjm22q3"]
+
+[ext_resource type="Script" path="res://Scripts/DamageArea.cs" id="1_tuwn5"]
+[ext_resource type="Texture2D" uid="uid://cvcjg6mifn6pr" path="res://Assets/lightning1.png" id="2_utike"]
+[ext_resource type="Texture2D" uid="uid://d1nu3qkbb7r0m" path="res://Assets/lightning2.png" id="3_cm2ri"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_afpow"]
+radius = 118.95
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_nvas7"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_utike")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_cm2ri")
+}],
+"loop": true,
+"name": &"default",
+"speed": 20.0
+}]
+
+[node name="DamageArea" type="Area2D"]
+collision_layer = 2
+script = ExtResource("1_tuwn5")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_afpow")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = -1
+scale = Vector2(0.35, 0.35)
+sprite_frames = SubResource("SpriteFrames_nvas7")
+autoplay = "default"
+frame_progress = 0.253634

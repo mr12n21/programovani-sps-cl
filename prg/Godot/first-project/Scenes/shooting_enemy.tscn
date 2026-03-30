@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3 uid="uid://ll2kr18pflwy"]
+
+[ext_resource type="Script" path="res://Scripts/ShootingEnemy.cs" id="1_mebt6"]
+[ext_resource type="Texture2D" uid="uid://balou1874dawa" path="res://Assets/enemy1.png" id="2_mebt6"]
+[ext_resource type="PackedScene" uid="uid://dtkwgrew2e55q" path="res://Scenes/health_bar.tscn" id="2_p0kal"]
+[ext_resource type="PackedScene" uid="uid://dxfenaosj2pcy" path="res://Scenes/gun.tscn" id="4_kum0h"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_kum0h"]
+radius = 50.0
+
+[node name="ShootingEnemy" type="CharacterBody2D" node_paths=PackedStringArray("Gun", "Agent", "Head")]
+collision_layer = 2
+collision_mask = 3
+motion_mode = 1
+script = ExtResource("1_mebt6")
+Gun = NodePath("Head/Gun")
+Agent = NodePath("NavigationAgent2D")
+Head = NodePath("Head")
+
+[node name="HealthBar" parent="." node_paths=PackedStringArray("Node") instance=ExtResource("2_p0kal")]
+offset_top = -63.0
+offset_bottom = -53.0
+Node = NodePath("..")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_kum0h")
+
+[node name="Head" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Head"]
+scale = Vector2(0.16, 0.16)
+texture = ExtResource("2_mebt6")
+
+[node name="Gun" parent="Head" instance=ExtResource("4_kum0h")]
+position = Vector2(0, 61.36)
+rotation = -3.14159
+scale = Vector2(0.505, 0.505)
+ProjectileMask = 1
