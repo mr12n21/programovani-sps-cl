@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://ca7fyasov56bc"]
+
+[ext_resource type="Script" uid="uid://dpug4lvnejixg" path="res://Scripts/HealthBar.cs" id="1_1f0m8"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m34ix"]
+bg_color = Color(0.6666667, 0.6666667, 0.6666667, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qay8w"]
+bg_color = Color(0.8012637, 1.540184e-06, 6.738305e-07, 1)
+
+[node name="HealthBar" type="ProgressBar" unique_id=490978940]
+offset_left = 70.0
+offset_top = 67.0
+offset_right = 270.0
+offset_bottom = 87.0
+theme_override_styles/background = SubResource("StyleBoxFlat_m34ix")
+theme_override_styles/fill = SubResource("StyleBoxFlat_qay8w")
+step = 1.0
+value = 50.0
+show_percentage = false
+script = ExtResource("1_1f0m8")

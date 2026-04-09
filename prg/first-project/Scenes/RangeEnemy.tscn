@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://brx0vu2t0wbfi"]
+
+[ext_resource type="Script" uid="uid://d44f0avx81n4" path="res://Scripts/RangeEnemy.cs" id="1_7nhe6"]
+[ext_resource type="Texture2D" uid="uid://x76f5toginuf" path="res://Assets/Range_Enemy.png" id="2_vyt2f"]
+[ext_resource type="PackedScene" uid="uid://ca7fyasov56bc" path="res://Scenes/HealthBar.tscn" id="3_d67ai"]
+[ext_resource type="PackedScene" uid="uid://c5p0fynx8qj3q" path="res://Scenes/gun.tscn" id="4_vyt2f"]
+
+[node name="RangeEnemy" type="CharacterBody2D" unique_id=1423128138 node_paths=PackedStringArray("gun", "Agent", "EnemyHead")]
+scale = Vector2(2, 2)
+collision_layer = 2
+collision_mask = 3
+motion_mode = 1
+script = ExtResource("1_7nhe6")
+gun = NodePath("Head/Gun")
+Agent = NodePath("NavigationAgent2D")
+EnemyHead = NodePath("Head")
+
+[node name="HealthBar" parent="." unique_id=490978940 node_paths=PackedStringArray("Node") instance=ExtResource("3_d67ai")]
+offset_left = -37.5
+offset_top = -45.500004
+offset_right = 106.49475
+offset_bottom = -37.79567
+scale = Vector2(0.5088807, 0.935289)
+Node = NodePath("..")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1350926870]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=1336581769]
+position = Vector2(-9.499999, -8.999995)
+scale = Vector2(2.90625, 2.7499998)
+polygon = PackedVector2Array(15.827957, 15.818182, 15.827957, -9.27273, -9.290323, -9.27273, -9.290323, 15.818182)
+
+[node name="Head" type="Node2D" parent="." unique_id=1802443245]
+
+[node name="Sprite2D" type="Sprite2D" parent="Head" unique_id=1778047408]
+scale = Vector2(0.04989566, 0.07704102)
+texture = ExtResource("2_vyt2f")
+
+[node name="Gun" parent="Head" unique_id=1794736044 instance=ExtResource("4_vyt2f")]
+position = Vector2(0, 31)
+rotation = 3.1415927
+scale = Vector2(0.4, 0.4)
+ProjectileMask = 1

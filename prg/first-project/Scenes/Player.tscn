@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://dbo73clpre080"]
+
+[ext_resource type="Script" uid="uid://yab60ti8qnt" path="res://Scripts/Player.cs" id="1_kyqiw"]
+[ext_resource type="Texture2D" uid="uid://b5ug0w5g5un1j" path="res://Assets/player.png" id="2_gntrk"]
+[ext_resource type="PackedScene" uid="uid://ca7fyasov56bc" path="res://Scenes/HealthBar.tscn" id="3_gntrk"]
+[ext_resource type="PackedScene" uid="uid://c5p0fynx8qj3q" path="res://Scenes/gun.tscn" id="4_dewec"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_wrm1d"]
+radius = 240.80713
+
+[node name="Player" type="CharacterBody2D" unique_id=1215317360 node_paths=PackedStringArray("PlayerHead", "gun", "PlayerImage")]
+scale = Vector2(0.3200006, 0.32)
+collision_mask = 3
+script = ExtResource("1_kyqiw")
+PlayerHead = NodePath("Head")
+gun = NodePath("Head/Gun")
+PlayerImage = NodePath("Head/Sprite2D")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=167994310]
+position = Vector2(0, -3.125)
+shape = SubResource("CircleShape2D_wrm1d")
+
+[node name="HealthBar" parent="." unique_id=490978940 node_paths=PackedStringArray("Node") instance=ExtResource("3_gntrk")]
+offset_left = -215.62459
+offset_top = -293.75003
+offset_right = 216.87563
+offset_bottom = -250.5
+Node = NodePath("..")
+
+[node name="Head" type="Node2D" parent="." unique_id=1731456389]
+
+[node name="Sprite2D" type="Sprite2D" parent="Head" unique_id=731362444]
+scale = Vector2(0.63053876, 0.63053936)
+texture = ExtResource("2_gntrk")
+
+[node name="Gun" parent="Head" unique_id=1794736044 instance=ExtResource("4_dewec")]
+position = Vector2(0, 165.625)
+rotation = 3.1415927
+scale = Vector2(2.9999971, 2.9999971)
+FireRate = 2.0
+ProjectileMask = 2

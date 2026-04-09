@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://kcxoge8ur4xs"]
+
+[ext_resource type="Script" uid="uid://dk3imk3dpnpuk" path="res://Scripts/DamageArea.cs" id="1_tuwn5"]
+[ext_resource type="Texture2D" uid="uid://brdxvv4ki6phv" path="res://Assets/lightning1.png" id="2_utike"]
+[ext_resource type="Texture2D" uid="uid://b8alc5s7nd766" path="res://Assets/lightning2.png" id="3_cm2ri"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1exfc"]
+radius = 184.01086
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_nvas7"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_utike")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_cm2ri")
+}],
+"loop": true,
+"name": &"default",
+"speed": 20.0
+}]
+
+[node name="DamageArea" type="Area2D" unique_id=177666765]
+z_index = -1
+scale = Vector2(1.5, 1.5)
+script = ExtResource("1_tuwn5")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=265112922]
+shape = SubResource("CircleShape2D_1exfc")
+debug_color = Color(0.9889155, 0, 0.30185252, 0.41960785)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=258282986]
+z_index = -1
+scale = Vector2(0.39501956, 0.39501956)
+sprite_frames = SubResource("SpriteFrames_nvas7")
+autoplay = "default"
+frame_progress = 0.24951923
