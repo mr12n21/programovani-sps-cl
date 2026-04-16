@@ -1,83 +1,21 @@
-[gd_scene format=3 uid="uid://lonh8ylbp0ov"]
+[gd_scene load_steps=4 format=3 uid="uid://lonh8ylbp0ov"]
 
-[ext_resource type="Script" uid="uid://dfrxq1xhpqjxb" path="res://Scripts/ProjectileExplosion.cs" id="1_hmcsw"]
+[ext_resource type="Script" path="res://Scripts/ProjectileExplosion.cs" id="1_hmcsw"]
 [ext_resource type="Texture2D" uid="uid://wsm6d10883al" path="res://Assets/explosion.png" id="1_l37bq"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_aayv4"]
-radius = 10.4761915
+radius = 10.4762
 
-[sub_resource type="Animation" id="Animation_l37bq"]
-resource_name = "Explosion"
-length = 0.2
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:scale")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.2),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Vector2(0.05, 0.05), Vector2(0.15, 0.15)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Sprite2D:modulate")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.2),
-"transitions": PackedFloat32Array(1, 1),
-"update": 0,
-"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
-}
-
-[sub_resource type="Animation" id="Animation_hmcsw"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Sprite2D:scale")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(0.05, 0.05)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Sprite2D:modulate")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Color(1, 1, 1, 1)]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_6xhj8"]
-_data = {
-&"Explosion": SubResource("Animation_l37bq"),
-&"RESET": SubResource("Animation_hmcsw")
-}
-
-[node name="ProjectileExplosion" type="Area2D" unique_id=414846423]
+[node name="ProjectileExplosion" type="Area2D"]
 z_index = 10
 script = ExtResource("1_hmcsw")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1973449266]
+[node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(0.05, 0.05)
 texture = ExtResource("1_l37bq")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=75614582]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 scale = Vector2(2.1, 2.1)
 shape = SubResource("CircleShape2D_aayv4")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1992140454]
-libraries/ = SubResource("AnimationLibrary_6xhj8")
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

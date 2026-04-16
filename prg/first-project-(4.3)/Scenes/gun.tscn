@@ -1,17 +1,17 @@
-[gd_scene format=3 uid="uid://c5p0fynx8qj3q"]
+[gd_scene load_steps=3 format=3 uid="uid://c5p0fynx8qj3q"]
 
-[ext_resource type="Texture2D" uid="uid://b4rxyk1t8bxrd" path="res://Assets/gun.png" id="1_nxj5y"]
-[ext_resource type="Script" uid="uid://dlhd5ivqyyeb3" path="res://Scripts/Gun.cs" id="1_oqrbh"]
+[ext_resource type="Texture2D" uid="uid://bscvvpr323s6p" path="res://Assets/gun.png" id="1_nxj5y"]
+[ext_resource type="Script" path="res://Scripts/Gun.cs" id="1_oqrbh"]
 
-[node name="Gun" type="Node2D" unique_id=1794736044 node_paths=PackedStringArray("ProjectileSpawn")]
+[node name="Gun" type="Node2D" node_paths=PackedStringArray("ProjectileSpawn")]
 script = ExtResource("1_oqrbh")
 FireRate = 1.0
 ProjectileSpawn = NodePath("ProjectiveSpawn")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1013160978]
+[node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(0, -40)
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("1_nxj5y")
 
-[node name="ProjectiveSpawn" type="Node2D" parent="." unique_id=1959432310]
+[node name="ProjectiveSpawn" type="Node2D" parent="."]
 position = Vector2(0, -90)

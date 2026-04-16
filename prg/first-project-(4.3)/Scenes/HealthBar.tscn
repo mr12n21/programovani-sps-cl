@@ -1,14 +1,14 @@
-[gd_scene format=3 uid="uid://ca7fyasov56bc"]
+[gd_scene load_steps=4 format=3 uid="uid://ca7fyasov56bc"]
 
-[ext_resource type="Script" uid="uid://dpug4lvnejixg" path="res://Scripts/HealthBar.cs" id="1_1f0m8"]
+[ext_resource type="Script" path="res://Scripts/HealthBar.cs" id="1_1f0m8"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m34ix"]
-bg_color = Color(0.6666667, 0.6666667, 0.6666667, 1)
+bg_color = Color(0.666667, 0.666667, 0.666667, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qay8w"]
-bg_color = Color(0.8012637, 1.540184e-06, 6.738305e-07, 1)
+bg_color = Color(0.801264, 1.54018e-06, 6.73831e-07, 1)
 
-[node name="HealthBar" type="ProgressBar" unique_id=490978940]
+[node name="HealthBar" type="ProgressBar"]
 offset_left = 70.0
 offset_top = 67.0
 offset_right = 270.0
