@@ -4,8 +4,16 @@ using System;
 public partial class Player : CharacterBody2D, IDamageable
 {
 	public const float Speed = 300.0f;
+	public const float SprintSpeed = 550.0f;
+	public const float MaxNitro = 100f;
+	public const float NitroDrainRate = 40f;   // per second
+	public const float NitroRegenRate = 20f;    // per second
 	[Export] public Node2D PlayerHead;
 	[Export] Gun gun;
+
+	public float Nitro { get; private set; } = MaxNitro;
+	public bool IsSprinting { get; private set; } = false;
+	public event Action<float> OnNitroChanged;
 
 	public WeaponInventory Inventory;
 
@@ -49,9 +57,26 @@ public partial class Player : CharacterBody2D, IDamageable
 		}
 		Vector2 vector2 = Input.GetVector("Left", "Right", "Up", "Down");
 		vector2 = vector2.Normalized();
+
+		// Sprint / nitro
+		bool wantsToSprint = Input.IsKeyPressed(Key.Shift) && vector2.Length() > 0.1f;
+		if (wantsToSprint && Nitro > 0f)
+		{
+			IsSprinting = true;
+			Nitro = Mathf.Max(0f, Nitro - NitroDrainRate * (float)delta);
+		}
+		else
+		{
+			IsSprinting = false;
+			Nitro = Mathf.Min(MaxNitro, Nitro + NitroRegenRate * (float)delta);
+		}
+		OnNitroChanged?.Invoke(Nitro);
+
+		float currentSpeed = IsSprinting ? SprintSpeed : Speed;
+
 		Vector2 velocity = Velocity;
-		velocity.X = Mathf.Lerp(velocity.X, vector2.X * Speed, 0.1f);
-		velocity.Y = Mathf.Lerp(velocity.Y, vector2.Y * Speed, 0.1f);
+		velocity.X = Mathf.Lerp(velocity.X, vector2.X * currentSpeed, 0.1f);
+		velocity.Y = Mathf.Lerp(velocity.Y, vector2.Y * currentSpeed, 0.1f);
 		Velocity = velocity;
 		MoveAndSlide();
 	}
