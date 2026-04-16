@@ -31,6 +31,7 @@ public abstract partial class Enemy : CharacterBody2D, IDamageable, IPoolable
 	public override void _Ready()
 	{
 		_collisionLayer = CollisionLayer;
+		AddToGroup("enemies");
 	}
 
 	public void Die()
