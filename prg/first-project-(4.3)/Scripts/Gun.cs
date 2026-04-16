@@ -12,16 +12,23 @@ public partial class Gun : Node2D
 	[Export] public Node2D ProjectileSpawn;
 	[Export] public uint ProjectileMask = 0;
 	double _lastFire = 0;
-	// Called when the node enters the scene tree for the first time.
+
+	private float _damageOverride = -1;
+
 	public override void _Ready()
 	{
 		if (ProjectileSpawn == null) {
 			ProjectileSpawn = GetNode<Node2D>("ProjectileSpawn");
 		}
-		
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
+	public void ApplyWeapon(WeaponData weapon)
+	{
+		if (weapon == null) return;
+		FireRate = weapon.FireRate;
+		_damageOverride = weapon.Damage;
+	}
+
 	public override void _Process(double delta)
 	{
 	}
@@ -36,6 +43,7 @@ public partial class Gun : Node2D
 		projectile.CollisionMask = ProjectileMask;
 		projectile.GlobalPosition = GlobalPosition;
 		projectile.Rotation = direction.Angle();
+		if (_damageOverride > 0) projectile.Damage = _damageOverride;
 		projectile.Activate();
 	}
 }

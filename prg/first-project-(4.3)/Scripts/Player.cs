@@ -7,8 +7,43 @@ public partial class Player : CharacterBody2D, IDamageable
 	[Export] public Node2D PlayerHead;
 	[Export] Gun gun;
 
+	public WeaponInventory Inventory;
+
+	public override void _Ready()
+	{
+		_collisionLayer = CollisionLayer;
+		ProcessMode = ProcessModeEnum.Always;
+		CallDeferred(nameof(FindInventory));
+	}
+
+	private void FindInventory()
+	{
+		var parent = GetParent();
+		if (parent != null)
+		{
+			Inventory = parent.GetNodeOrNull<WeaponInventory>("WeaponInventory");
+		}
+		if (Inventory != null)
+		{
+			Inventory.OnWeaponChanged += OnWeaponChanged;
+			ApplyInitialWeapon();
+		}
+	}
+
+	private void ApplyInitialWeapon()
+	{
+		if (Inventory?.CurrentWeapon != null)
+			gun.ApplyWeapon(Inventory.CurrentWeapon);
+	}
+
+	private void OnWeaponChanged(WeaponData weapon, int index)
+	{
+		gun.ApplyWeapon(weapon);
+	}
+
 	public override void _PhysicsProcess(double delta)
 	{
+		if (GetTree().Paused) return;
 		if (PlayerImage != null) {
 			PlayerHead.Rotation = (GetGlobalMousePosition() - GlobalPosition).Angle() - Mathf.Pi / 2;
 		}
@@ -24,12 +59,44 @@ public partial class Player : CharacterBody2D, IDamageable
     {
         if (@event is InputEventMouseButton MouseButtonEvent)
 		{
-			if(MouseButtonEvent.ButtonIndex == MouseButton.Left && MouseButtonEvent.Pressed)
+			if(MouseButtonEvent.ButtonIndex == MouseButton.Left && MouseButtonEvent.Pressed && !_inventoryOpen)
 			{
 				gun.Shoot();
 			}
+			if(MouseButtonEvent.ButtonIndex == MouseButton.WheelUp && MouseButtonEvent.Pressed)
+			{
+				Inventory?.Next();
+			}
+			if(MouseButtonEvent.ButtonIndex == MouseButton.WheelDown && MouseButtonEvent.Pressed)
+			{
+				Inventory?.Previous();
+			}
+		}
+		if (@event is InputEventKey keyEvent && keyEvent.Pressed)
+		{
+			if (keyEvent.Keycode >= Key.Key1 && keyEvent.Keycode <= Key.Key5)
+			{
+				int index = (int)keyEvent.Keycode - (int)Key.Key1;
+				Inventory?.SwitchTo(index);
+			}
+			if (keyEvent.Keycode == Key.Tab)
+			{
+				ToggleInventory();
+			}
 		}
     }
+	private bool _inventoryOpen = false;
+
+	private void ToggleInventory()
+	{
+		_inventoryOpen = !_inventoryOpen;
+		GetTree().Paused = _inventoryOpen;
+		var hud = GetTree().Root.GetNodeOrNull<Game>("Game")
+			?.GetNodeOrNull<CanvasLayer>("CanvasLayer")
+			?.GetNodeOrNull<WeaponHud>("WeaponHud");
+		if (hud != null) hud.SetInventoryOpen(_inventoryOpen);
+	}
+
 [Export]
 	public float MaxHealth { get; set; } = 100;
 	[Export] public Sprite2D PlayerImage;
@@ -51,11 +118,6 @@ public partial class Player : CharacterBody2D, IDamageable
     public event Action<float> OnHealthChanged;
 
 	private uint _collisionLayer = 1;
-
-	public override void _Ready()
-	{
-		_collisionLayer = CollisionLayer;
-	}
 
     public void Heal(float hp)
     {

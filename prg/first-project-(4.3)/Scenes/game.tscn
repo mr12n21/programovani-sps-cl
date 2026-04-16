@@ -8,6 +8,9 @@
 [ext_resource type="PackedScene" uid="uid://b3c23yr58wxei" path="res://Scenes/MeleeEnemy.tscn" id="5_wowpa"]
 [ext_resource type="PackedScene" uid="uid://lonh8ylbp0ov" path="res://Scenes/projectile_explosion.tscn" id="6_v158k"]
 [ext_resource type="Texture2D" uid="uid://cel2fsb85mof7" path="res://Assets/terain.png" id="7_1l0tm"]
+[ext_resource type="Script" path="res://Scripts/WeaponInventory.cs" id="8_winv"]
+[ext_resource type="Script" path="res://Scripts/WeaponHud.cs" id="9_whud"]
+[ext_resource type="Script" path="res://Scripts/Minimap.cs" id="10_mmap"]
 
 [sub_resource type="Resource" id="Resource_i6g32"]
 script = ExtResource("2_3dryh")
@@ -4231,7 +4234,7 @@ font_color = Color(0, 1, 0, 1)
 outline_size = 10
 outline_color = Color(0, 0, 0, 1)
 
-[node name="Game" type="Node2D" unique_id=1853558655 node_paths=PackedStringArray("ScoreLabel")]
+[node name="Game" type="Node2D" unique_id=1853558655 node_paths=PackedStringArray("ScoreLabel", "KillsLabel")]
 script = ExtResource("1_ebmjs")
 PoolObjects = Dictionary[String, ExtResource("2_3dryh")]({
 "bullets": SubResource("Resource_i6g32"),
@@ -4240,6 +4243,7 @@ PoolObjects = Dictionary[String, ExtResource("2_3dryh")]({
 "rangeEnemy": SubResource("Resource_v158k")
 })
 ScoreLabel = NodePath("CanvasLayer/ScoreContainer/ScoreValue")
+KillsLabel = NodePath("CanvasLayer/ScoreContainer/ScoreValue")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=729449026]
 z_index = -10
@@ -4313,5 +4317,22 @@ label_settings = SubResource("LabelSettings_v158k")
 layout_mode = 2
 text = "0"
 label_settings = SubResource("LabelSettings_h4fw4")
+
+[node name="WeaponInventory" type="Node" parent="."]
+script = ExtResource("8_winv")
+
+[node name="WeaponHud" type="Control" parent="CanvasLayer"]
+anchors_preset = 0
+script = ExtResource("9_whud")
+
+[node name="Minimap" type="Control" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 220.0
+script = ExtResource("10_mmap")
 
 [connection signal="timeout" from="Timer" to="." method="SpawnEnemy"]

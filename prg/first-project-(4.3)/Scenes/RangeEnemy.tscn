@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://brx0vu2t0wbfi"]
 
 [ext_resource type="Script" path="res://Scripts/RangeEnemy.cs" id="1_7nhe6"]
-[ext_resource type="Texture2D" uid="uid://x76f5toginuf" path="res://Assets/Range_Enemy.png" id="2_vyt2f"]
+[ext_resource type="Texture2D" uid="uid://bg3qqel2xjdyn" path="res://Assets/enemy2.png" id="2_vyt2f"]
 [ext_resource type="PackedScene" uid="uid://ca7fyasov56bc" path="res://Scenes/HealthBar.tscn" id="3_d67ai"]
 [ext_resource type="PackedScene" uid="uid://c5p0fynx8qj3q" path="res://Scenes/gun.tscn" id="4_vyt2f"]
 

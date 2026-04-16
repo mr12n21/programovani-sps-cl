@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://b3c23yr58wxei"]
 
 [ext_resource type="Script" path="res://Scripts/MeleeEnemy.cs" id="1_kpr8r"]
-[ext_resource type="Texture2D" uid="uid://mfdbrhfelxd3" path="res://Assets/Enemy_Sprite.png" id="2_xeo28"]
+[ext_resource type="Texture2D" uid="uid://balou1874dawa" path="res://Assets/enemy1.png" id="2_xeo28"]
 [ext_resource type="PackedScene" uid="uid://ca7fyasov56bc" path="res://Scenes/HealthBar.tscn" id="3_kpr8r"]
 [ext_resource type="PackedScene" uid="uid://kcxoge8ur4xs" path="res://Scenes/damage_area.tscn" id="3_mjdfb"]
 
