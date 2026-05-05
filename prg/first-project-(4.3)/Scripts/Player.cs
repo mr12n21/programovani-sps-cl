@@ -16,6 +16,8 @@ public partial class Player : CharacterBody2D, IDamageable
 	public event Action<float> OnNitroChanged;
 
 	public WeaponInventory Inventory;
+	private bool _inventoryOpen = false;
+	private bool _pauseMenuOpen = false;
 
 	public override void _Ready()
 	{
@@ -80,46 +82,121 @@ public partial class Player : CharacterBody2D, IDamageable
 		Velocity = velocity;
 		MoveAndSlide();
 	}
-    public override void _Input(InputEvent @event)
-    {
-        if (@event is InputEventMouseButton MouseButtonEvent)
+
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
 		{
-			if(MouseButtonEvent.ButtonIndex == MouseButton.Left && MouseButtonEvent.Pressed && !_inventoryOpen)
-			{
-				gun.Shoot();
-			}
-			if(MouseButtonEvent.ButtonIndex == MouseButton.WheelUp && MouseButtonEvent.Pressed)
-			{
-				Inventory?.Next();
-			}
-			if(MouseButtonEvent.ButtonIndex == MouseButton.WheelDown && MouseButtonEvent.Pressed)
-			{
-				Inventory?.Previous();
-			}
-		}
-		if (@event is InputEventKey keyEvent && keyEvent.Pressed)
-		{
-			if (keyEvent.Keycode >= Key.Key1 && keyEvent.Keycode <= Key.Key5)
-			{
-				int index = (int)keyEvent.Keycode - (int)Key.Key1;
-				Inventory?.SwitchTo(index);
-			}
 			if (keyEvent.Keycode == Key.Tab)
 			{
 				ToggleInventory();
+				GetViewport().SetInputAsHandled();
+				return;
+			}
+
+			if (keyEvent.Keycode == Key.Escape)
+			{
+				TogglePauseMenu();
+				GetViewport().SetInputAsHandled();
+				return;
+			}
+
+			if (!_pauseMenuOpen && keyEvent.Keycode >= Key.Key1 && keyEvent.Keycode <= Key.Key5)
+			{
+				int index = (int)keyEvent.Keycode - (int)Key.Key1;
+				Inventory?.SwitchTo(index);
+				GetViewport().SetInputAsHandled();
+				return;
 			}
 		}
-    }
-	private bool _inventoryOpen = false;
+
+		if (_pauseMenuOpen)
+		{
+			return;
+		}
+
+		if (@event is InputEventMouseButton mouseButtonEvent && mouseButtonEvent.Pressed)
+		{
+			if (mouseButtonEvent.ButtonIndex == MouseButton.Left && !IsMenuOpen())
+			{
+				gun.Shoot();
+				GetViewport().SetInputAsHandled();
+				return;
+			}
+
+			if (mouseButtonEvent.ButtonIndex == MouseButton.WheelUp)
+			{
+				Inventory?.Next();
+				GetViewport().SetInputAsHandled();
+				return;
+			}
+
+			if (mouseButtonEvent.ButtonIndex == MouseButton.WheelDown)
+			{
+				Inventory?.Previous();
+				GetViewport().SetInputAsHandled();
+			}
+		}
+	}
+
+	public void OpenInventoryMenu()
+	{
+		_inventoryOpen = true;
+		_pauseMenuOpen = false;
+		ApplyMenuState();
+	}
+
+	public void OpenPauseMenu()
+	{
+		_pauseMenuOpen = true;
+		_inventoryOpen = false;
+		ApplyMenuState();
+	}
+
+	public void CloseMenus()
+	{
+		_inventoryOpen = false;
+		_pauseMenuOpen = false;
+		ApplyMenuState();
+	}
 
 	private void ToggleInventory()
 	{
-		_inventoryOpen = !_inventoryOpen;
-		GetTree().Paused = _inventoryOpen;
+		if (_inventoryOpen)
+		{
+			CloseMenus();
+			return;
+		}
+
+		OpenInventoryMenu();
+	}
+
+	private void TogglePauseMenu()
+	{
+		if (_pauseMenuOpen)
+		{
+			CloseMenus();
+			return;
+		}
+
+		OpenPauseMenu();
+	}
+
+	private void ApplyMenuState()
+	{
+		GetTree().Paused = IsMenuOpen();
 		var hud = GetTree().Root.GetNodeOrNull<Game>("Game")
 			?.GetNodeOrNull<CanvasLayer>("CanvasLayer")
 			?.GetNodeOrNull<WeaponHud>("WeaponHud");
-		if (hud != null) hud.SetInventoryOpen(_inventoryOpen);
+		if (hud != null)
+		{
+			hud.SetMenuState(_inventoryOpen, _pauseMenuOpen);
+		}
+	}
+
+	private bool IsMenuOpen()
+	{
+		return _inventoryOpen || _pauseMenuOpen;
 	}
 
 [Export]

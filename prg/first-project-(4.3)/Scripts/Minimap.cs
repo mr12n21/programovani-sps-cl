@@ -25,6 +25,7 @@ public partial class Minimap : Control
 	}
 
 	public override void _Process(double delta)
+
 	{
 		QueueRedraw();
 	}

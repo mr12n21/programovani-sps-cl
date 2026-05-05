@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scripts/DiamondPickup.cs" id="1_pick"]
+[ext_resource type="Texture2D" path="res://Assets/white_circle.png" id="2_tex"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pick"]
+radius = 18.0
+
+[node name="DiamondPickup" type="Area2D"]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_pick")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_pick")
+
+[node name="Visual" type="Node2D" parent="."]
+z_index = 4
+
+[node name="Glow" type="Sprite2D" parent="Visual"]
+modulate = Color(0.3, 0.95, 1, 0.38)
+scale = Vector2(0.12, 0.12)
+texture = ExtResource("2_tex")
+
+[node name="Core" type="Sprite2D" parent="Visual"]
+modulate = Color(0.98, 0.87, 0.42, 0.96)
+scale = Vector2(0.075, 0.075)
+texture = ExtResource("2_tex")
