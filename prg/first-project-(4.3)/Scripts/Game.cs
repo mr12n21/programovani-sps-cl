@@ -213,7 +213,7 @@ public partial class Game : Node2D
 
 	private Enemy RequestEnemyFromPool()
 	{
-		int randomEnemy = GD.RandRange(0, 1);
+		int randomEnemy = GD.RandiRange(0, 1);
 		Enemy enemy;
 		if (randomEnemy == 0)
 		{
@@ -286,13 +286,13 @@ public partial class Game : Node2D
 
 	private Vector2 RandomOffset(float minRadius, float maxRadius)
 	{
-		Vector2 direction = new Vector2(GD.RandRange(-1f, 1f), GD.RandRange(-1f, 1f)).Normalized();
+		Vector2 direction = new Vector2(GD.RandfRange(-1f, 1f), GD.RandfRange(-1f, 1f)).Normalized();
 		if (direction == Vector2.Zero)
 		{
 			direction = Vector2.Right;
 		}
 
-		return direction * GD.RandRange(minRadius, maxRadius);
+		return direction * GD.RandfRange(minRadius, maxRadius);
 	}
 
 	private void EnsureReferences()
