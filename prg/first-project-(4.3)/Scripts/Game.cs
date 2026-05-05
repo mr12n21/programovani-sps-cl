@@ -6,25 +6,8 @@ public partial class Game : Node2D
 {
 	public static Game Instance { get; private set; }
 
-	public int Score
-	{
-		get
-		{
-			if (ScoreLabel != null && int.TryParse(ScoreLabel.Text, out int score)) return score;
-			return 0;
-		}
-		set
-		{
-			if (ScoreLabel != null)
-			{
-				ScoreLabel.Text = value.ToString();
-			}
-		}
-	}
-
 	[Export]
 	Godot.Collections.Dictionary<string, PoolObject> PoolObjects = new();
-	[Export] public Label ScoreLabel;
 	[Export] public float BaseSpawnInterval = 1.7f;
 	[Export] public float MinimumSpawnInterval = 0.55f;
 	[Export] public int BaseTargetEnemies = 4;
@@ -170,7 +153,6 @@ public partial class Game : Node2D
 	public void HandleEnemyDefeated(Enemy enemy)
 	{
 		_kills += 1;
-		Score += enemy.IsBoss ? 5 : 1;
 
 		if (enemy.IsBoss)
 		{

@@ -13,8 +13,11 @@ public partial class WeaponHud : Control
 
 	private OverlayMode _overlayMode = OverlayMode.None;
 	private ColorRect _overlay;
+	private MarginContainer _overlayFrame;
 	private PanelContainer _menuPanel;
+	private ScrollContainer _menuScroll;
 	private VBoxContainer _menuContent;
+	private ScrollContainer _bottomBarScroll;
 	private HBoxContainer _bottomBar;
 	private ProgressBar _nitroBar;
 	private Label _nitroLabel;
@@ -31,8 +34,17 @@ public partial class WeaponHud : Control
 		BuildTopInfo();
 		BuildBottomBar();
 		BuildNitroBar();
+		UpdateResponsiveLayout();
 
 		CallDeferred(nameof(FindInventory));
+	}
+
+	public override void _Notification(int what)
+	{
+		if (what == NotificationResized)
+		{
+			UpdateResponsiveLayout();
+		}
 	}
 
 	private void BuildOverlay()
@@ -44,19 +56,14 @@ public partial class WeaponHud : Control
 		_overlay.MouseFilter = MouseFilterEnum.Ignore;
 		AddChild(_overlay);
 
-		var frame = new MarginContainer();
-		frame.SetAnchorsPreset(LayoutPreset.FullRect);
-		frame.AddThemeConstantOverride("margin_left", 40);
-		frame.AddThemeConstantOverride("margin_top", 40);
-		frame.AddThemeConstantOverride("margin_right", 40);
-		frame.AddThemeConstantOverride("margin_bottom", 120);
-		_overlay.AddChild(frame);
+		_overlayFrame = new MarginContainer();
+		_overlayFrame.SetAnchorsPreset(LayoutPreset.FullRect);
+		_overlay.AddChild(_overlayFrame);
 
 		var center = new CenterContainer();
-		frame.AddChild(center);
+		_overlayFrame.AddChild(center);
 
 		_menuPanel = new PanelContainer();
-		_menuPanel.CustomMinimumSize = new Vector2(1020, 560);
 		_menuPanel.Visible = false;
 		_menuPanel.AddThemeStyleboxOverride("panel", CreateCardStyle(new Color(0.9f, 0.75f, 0.35f), true, false));
 		center.AddChild(_menuPanel);
@@ -68,9 +75,15 @@ public partial class WeaponHud : Control
 		menuMargin.AddThemeConstantOverride("margin_bottom", 22);
 		_menuPanel.AddChild(menuMargin);
 
+		_menuScroll = new ScrollContainer();
+		_menuScroll.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		_menuScroll.SizeFlagsVertical = SizeFlags.ExpandFill;
+		menuMargin.AddChild(_menuScroll);
+
 		_menuContent = new VBoxContainer();
 		_menuContent.AddThemeConstantOverride("separation", 18);
-		menuMargin.AddChild(_menuContent);
+		_menuContent.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		_menuScroll.AddChild(_menuContent);
 	}
 
 	private void BuildTopInfo()
@@ -110,10 +123,14 @@ public partial class WeaponHud : Control
 		bottomCenter.OffsetBottom = -18;
 		AddChild(bottomCenter);
 
+		_bottomBarScroll = new ScrollContainer();
+		_bottomBarScroll.CustomMinimumSize = new Vector2(0, 92);
+		bottomCenter.AddChild(_bottomBarScroll);
+
 		_bottomBar = new HBoxContainer();
 		_bottomBar.Alignment = BoxContainer.AlignmentMode.Center;
 		_bottomBar.AddThemeConstantOverride("separation", 12);
-		bottomCenter.AddChild(_bottomBar);
+		_bottomBarScroll.AddChild(_bottomBar);
 	}
 
 	private void BuildNitroBar()
@@ -240,6 +257,7 @@ public partial class WeaponHud : Control
 
 	private void UpdateAll()
 	{
+		UpdateResponsiveLayout();
 		UpdateStatusBar();
 		UpdateBottomBar();
 		if (_overlayMode != OverlayMode.None)
@@ -390,10 +408,16 @@ public partial class WeaponHud : Control
 		resumeButton.Pressed += () => FindPlayer()?.CloseMenus();
 		topActions.AddChild(resumeButton);
 
-		var grid = new HBoxContainer();
-		grid.Alignment = BoxContainer.AlignmentMode.Center;
-		grid.AddThemeConstantOverride("separation", 16);
-		_menuContent.AddChild(grid);
+		var cardsCenter = new CenterContainer();
+		cardsCenter.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		cardsCenter.SizeFlagsVertical = SizeFlags.ExpandFill;
+		_menuContent.AddChild(cardsCenter);
+
+		var grid = new GridContainer();
+		grid.Columns = GetInventoryColumnCount();
+		grid.AddThemeConstantOverride("h_separation", 16);
+		grid.AddThemeConstantOverride("v_separation", 16);
+		cardsCenter.AddChild(grid);
 
 		if (Inventory == null)
 		{
@@ -473,7 +497,7 @@ public partial class WeaponHud : Control
 		bool locked = !weapon.IsUnlocked;
 
 		var card = new PanelContainer();
-		card.CustomMinimumSize = new Vector2(180, 370);
+		card.CustomMinimumSize = GetWeaponCardSize();
 		card.AddThemeStyleboxOverride("panel", CreateCardStyle(weapon.Color, selected, locked));
 
 		var margin = new MarginContainer();
@@ -707,5 +731,75 @@ public partial class WeaponHud : Control
 		}
 
 		return $"Upgrade {weapon.GetUpgradePrice()}";
+	}
+
+	private void UpdateResponsiveLayout()
+	{
+		Vector2 viewportSize = GetViewportRect().Size;
+		if (viewportSize == Vector2.Zero)
+		{
+			return;
+		}
+
+		if (_overlayFrame != null)
+		{
+			int horizontalMargin = (int)Mathf.Clamp(viewportSize.X * 0.035f, 14f, 42f);
+			int topMargin = (int)Mathf.Clamp(viewportSize.Y * 0.04f, 14f, 40f);
+			int bottomMargin = (int)Mathf.Clamp(viewportSize.Y * 0.14f, 88f, 130f);
+			_overlayFrame.AddThemeConstantOverride("margin_left", horizontalMargin);
+			_overlayFrame.AddThemeConstantOverride("margin_top", topMargin);
+			_overlayFrame.AddThemeConstantOverride("margin_right", horizontalMargin);
+			_overlayFrame.AddThemeConstantOverride("margin_bottom", bottomMargin);
+		}
+
+		if (_menuPanel != null)
+		{
+			float panelWidth = Mathf.Clamp(viewportSize.X - 80f, 300f, 1180f);
+			float panelHeight = Mathf.Clamp(viewportSize.Y - 130f, 320f, 760f);
+			_menuPanel.CustomMinimumSize = new Vector2(panelWidth, panelHeight);
+		}
+
+		if (_bottomBarScroll != null)
+		{
+			float width = Mathf.Clamp(viewportSize.X - 32f, 260f, 940f);
+			_bottomBarScroll.CustomMinimumSize = new Vector2(width, 92f);
+		}
+	}
+
+	private int GetInventoryColumnCount()
+	{
+		float viewportWidth = GetViewportRect().Size.X;
+		if (viewportWidth < 720f)
+		{
+			return 1;
+		}
+
+		if (viewportWidth < 980f)
+		{
+			return 2;
+		}
+
+		if (viewportWidth < 1320f)
+		{
+			return 3;
+		}
+
+		return 5;
+	}
+
+	private Vector2 GetWeaponCardSize()
+	{
+		float viewportWidth = GetViewportRect().Size.X;
+		if (viewportWidth < 720f)
+		{
+			return new Vector2(250f, 350f);
+		}
+
+		if (viewportWidth < 980f)
+		{
+			return new Vector2(220f, 360f);
+		}
+
+		return new Vector2(180f, 370f);
 	}
 }

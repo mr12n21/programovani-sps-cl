@@ -4234,7 +4234,7 @@ font_color = Color(0, 1, 0, 1)
 outline_size = 10
 outline_color = Color(0, 0, 0, 1)
 
-[node name="Game" type="Node2D" unique_id=1853558655 node_paths=PackedStringArray("ScoreLabel", "KillsLabel")]
+[node name="Game" type="Node2D" unique_id=1853558655]
 script = ExtResource("1_ebmjs")
 PoolObjects = Dictionary[String, ExtResource("2_3dryh")]({
 "bullets": SubResource("Resource_i6g32"),
@@ -4242,8 +4242,6 @@ PoolObjects = Dictionary[String, ExtResource("2_3dryh")]({
 "meleeEnemy": SubResource("Resource_1l0tm"),
 "rangeEnemy": SubResource("Resource_v158k")
 })
-ScoreLabel = NodePath("CanvasLayer/ScoreContainer/ScoreValue")
-KillsLabel = NodePath("CanvasLayer/ScoreContainer/ScoreValue")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=729449026]
 z_index = -10
@@ -4303,20 +4301,6 @@ physics_material_override = SubResource("PhysicsMaterial_1l0tm")
 shape = SubResource("WorldBoundaryShape2D_ldgsr")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=377148289]
-
-[node name="ScoreContainer" type="HBoxContainer" parent="CanvasLayer" unique_id=940403272]
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="ScoreLabel" type="Label" parent="CanvasLayer/ScoreContainer" unique_id=1777343853]
-layout_mode = 2
-text = "Score: "
-label_settings = SubResource("LabelSettings_v158k")
-
-[node name="ScoreValue" type="Label" parent="CanvasLayer/ScoreContainer" unique_id=1460333475]
-layout_mode = 2
-text = "0"
-label_settings = SubResource("LabelSettings_h4fw4")
 
 [node name="WeaponInventory" type="Node" parent="."]
 script = ExtResource("8_winv")
