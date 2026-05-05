@@ -111,7 +111,7 @@ public abstract partial class Enemy : CharacterBody2D, IDamageable, IPoolable
 		}
 
 		Health = MaxHealth;
-		Vector2 RandomDirection = new Vector2(GD.RandRange(-1, 1), GD.RandRange(-1, 1)).Normalized();
+		Vector2 RandomDirection = new Vector2(RandomFloat(-1f, 1f), RandomFloat(-1f, 1f)).Normalized();
 		if (RandomDirection.X == 0 && RandomDirection.Y == 0) RandomDirection = Vector2.Right;
 		float spawnRadius = IsBoss ? 760f : 500f;
 		Vector2 RandomPosition = RandomDirection * spawnRadius;
@@ -144,5 +144,10 @@ public abstract partial class Enemy : CharacterBody2D, IDamageable, IPoolable
 		Modulate = _baseModulate;
 		Target = null;
 		Health = MaxHealth;
+	}
+
+	private float RandomFloat(float minValue, float maxValue)
+	{
+		return minValue + (maxValue - minValue) * GD.Randf();
 	}
 }
