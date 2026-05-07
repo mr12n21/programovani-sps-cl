@@ -5,10 +5,10 @@ public partial class Minimap : Control
 	public Node2D TrackedNode;
 	[Export] public float MapScale = 0.05f;
 	[Export] public Vector2 MapSize = new Vector2(200, 200);
-	[Export] public Color BackgroundColor = new Color(0.1f, 0.1f, 0.1f, 0.7f);
-	[Export] public Color PlayerColor = Colors.Green;
-	[Export] public Color EnemyColor = Colors.Red;
-	[Export] public Color BorderColor = Colors.White;
+	[Export] public Color BackgroundColor = new Color(0.03f, 0.05f, 0.09f, 0.82f);
+	[Export] public Color PlayerColor = new Color(0.6f, 0.9f, 1f, 1f);
+	[Export] public Color EnemyColor = new Color(0.95f, 0.48f, 0.4f, 1f);
+	[Export] public Color BorderColor = new Color(0.42f, 0.62f, 0.82f, 1f);
 
 	public override void _Ready()
 	{

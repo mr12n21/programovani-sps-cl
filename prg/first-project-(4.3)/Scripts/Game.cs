@@ -14,6 +14,9 @@ public partial class Game : Node2D
 	[Export] public int MaxTargetEnemies = 18;
 	[Export] public float BossSpawnEverySeconds = 40f;
 	[Export] public int BossSpawnEveryKills = 18;
+	[Export] public float DirectorRefillInterval = 0.45f;
+	[Export] public float SpawnPadding = 220f;
+	[Export] public float EnemyRecycleDistance = 1800f;
 
 	private readonly Dictionary<string, Queue<Node>> _poolNodes = new();
 	private readonly Dictionary<Type, string> _objectnames = new();
@@ -27,6 +30,8 @@ public partial class Game : Node2D
 	private int _bossesSpawned = 0;
 	private bool _bossAlive = false;
 	private float _runTime = 0f;
+	private float _refillCooldown = 0f;
+	private Rect2 _worldBounds = Rect2.Zero;
 	
 	public override void _Ready()
 	{
@@ -63,6 +68,8 @@ public partial class Game : Node2D
 		}
 
 		_diamondPickupScene = GD.Load<PackedScene>("res://Scenes/DiamondPickup.tscn");
+		CacheWorldBounds();
+		ApplyScenePalette();
 		UpdateDirectorStatus();
 		WarmupSpawn();
 	}
@@ -125,10 +132,17 @@ public partial class Game : Node2D
 	public override void _Process(double delta)
 	{
 		_runTime += (float)delta;
+		_refillCooldown = Mathf.Max(0f, _refillCooldown - (float)delta);
 
 		if (_spawnTimer != null)
 		{
 			_spawnTimer.WaitTime = GetCurrentSpawnInterval();
+		}
+
+		if (_refillCooldown <= 0f && _activeEnemies < GetTargetEnemyCount())
+		{
+			_refillCooldown = DirectorRefillInterval;
+			SpawnEnemy();
 		}
 
 		UpdateDirectorStatus();
@@ -147,7 +161,50 @@ public partial class Game : Node2D
 	public void RegisterEnemyReturned(Enemy enemy)
 	{
 		_activeEnemies = Mathf.Max(0, _activeEnemies - 1);
+		if (enemy.IsBoss)
+		{
+			_bossAlive = false;
+		}
 		UpdateDirectorStatus();
+	}
+
+	public Vector2 GetEnemySpawnPosition(Vector2 center, bool boss)
+	{
+		float spawnRadius = boss ? 760f : 500f;
+		Vector2 fallback = center + RandomDirection() * spawnRadius;
+		Rect2 spawnBounds = GetSpawnBounds();
+
+		if (spawnBounds.Size == Vector2.Zero)
+		{
+			return fallback;
+		}
+
+		for (int i = 0; i < 12; i++)
+		{
+			Vector2 candidate = center + RandomDirection() * RandomFloat(spawnRadius * 0.75f, spawnRadius * 1.15f);
+			candidate.X = Mathf.Clamp(candidate.X, spawnBounds.Position.X, spawnBounds.End.X);
+			candidate.Y = Mathf.Clamp(candidate.Y, spawnBounds.Position.Y, spawnBounds.End.Y);
+
+			if (candidate.DistanceTo(center) >= spawnRadius * 0.55f)
+			{
+				return candidate;
+			}
+		}
+
+		fallback.X = Mathf.Clamp(fallback.X, spawnBounds.Position.X, spawnBounds.End.X);
+		fallback.Y = Mathf.Clamp(fallback.Y, spawnBounds.Position.Y, spawnBounds.End.Y);
+		return fallback;
+	}
+
+	public bool ShouldRecycleEnemy(Vector2 enemyPosition, Vector2 playerPosition)
+	{
+		if (enemyPosition.DistanceTo(playerPosition) > EnemyRecycleDistance)
+		{
+			return true;
+		}
+
+		Rect2 allowedBounds = _worldBounds.Grow(-40f);
+		return allowedBounds.Size != Vector2.Zero && !allowedBounds.HasPoint(enemyPosition);
 	}
 
 	public void HandleEnemyDefeated(Enemy enemy)
@@ -182,12 +239,14 @@ public partial class Game : Node2D
 
 		int intensity = GetDifficultyTier() + (boss ? 2 : 0);
 		enemy.ConfigureSpawn(_player, intensity, boss);
+		enemy.SetSpawnPosition(GetEnemySpawnPosition(_player.GlobalPosition, boss));
 		enemy.Activate();
 
 		if (boss)
 		{
 			_bossAlive = true;
 			_bossesSpawned += 1;
+			SpawnBossEscortWave();
 		}
 
 		return true;
@@ -213,18 +272,18 @@ public partial class Game : Node2D
 
 	private int GetDifficultyTier()
 	{
-		return 1 + (int)(_runTime / 35f) + (_kills / 12) + _bossesSpawned;
+		return 1 + (int)(_runTime / 28f) + (_kills / 10) + _bossesSpawned * 2;
 	}
 
 	private int GetTargetEnemyCount()
 	{
-		int targetEnemies = BaseTargetEnemies + (int)(_runTime / 24f) + (_kills / 8);
+		int targetEnemies = BaseTargetEnemies + (int)(_runTime / 18f) + (_kills / 6) + _bossesSpawned;
 		return Mathf.Clamp(targetEnemies, BaseTargetEnemies, MaxTargetEnemies);
 	}
 
 	private float GetCurrentSpawnInterval()
 	{
-		float spawnInterval = BaseSpawnInterval - _runTime * 0.015f - _kills * 0.01f;
+		float spawnInterval = BaseSpawnInterval - _runTime * 0.02f - _kills * 0.012f;
 		return Mathf.Max(MinimumSpawnInterval, spawnInterval);
 	}
 
@@ -280,6 +339,55 @@ public partial class Game : Node2D
 	private float RandomFloat(float minValue, float maxValue)
 	{
 		return minValue + (maxValue - minValue) * GD.Randf();
+	}
+
+	private Vector2 RandomDirection()
+	{
+		Vector2 direction = new Vector2(RandomFloat(-1f, 1f), RandomFloat(-1f, 1f)).Normalized();
+		return direction == Vector2.Zero ? Vector2.Right : direction;
+	}
+
+	private Rect2 GetSpawnBounds()
+	{
+		return _worldBounds.Size == Vector2.Zero ? _worldBounds : _worldBounds.Grow(-SpawnPadding);
+	}
+
+	private void CacheWorldBounds()
+	{
+		Node2D leftBoundary = GetNodeOrNull<Node2D>("LeftBoundary");
+		Node2D rightBoundary = GetNodeOrNull<Node2D>("RightBoundary");
+		Node2D topBoundary = GetNodeOrNull<Node2D>("TopBoundary");
+		Node2D bottomBoundary = GetNodeOrNull<Node2D>("BottomBoundary");
+
+		if (leftBoundary == null || rightBoundary == null || topBoundary == null || bottomBoundary == null)
+		{
+			return;
+		}
+
+		float left = leftBoundary.GlobalPosition.X;
+		float right = rightBoundary.GlobalPosition.X;
+		float top = topBoundary.GlobalPosition.Y;
+		float bottom = bottomBoundary.GlobalPosition.Y;
+		_worldBounds = new Rect2(new Vector2(left, top), new Vector2(right - left, bottom - top));
+	}
+
+	private void SpawnBossEscortWave()
+	{
+		int escorts = Mathf.Clamp(1 + _bossesSpawned, 1, 4);
+		for (int i = 0; i < escorts && _activeEnemies < GetTargetEnemyCount(); i++)
+		{
+			SpawnConfiguredEnemy(false);
+		}
+	}
+
+	private void ApplyScenePalette()
+	{
+		RenderingServer.SetDefaultClearColor(new Color(0.02f, 0.03f, 0.06f, 1f));
+		CanvasItem tileMapLayer = GetNodeOrNull<CanvasItem>("TileMapLayer");
+		if (tileMapLayer != null)
+		{
+			tileMapLayer.Modulate = new Color(0.52f, 0.58f, 0.7f, 0.92f);
+		}
 	}
 
 	private void EnsureReferences()

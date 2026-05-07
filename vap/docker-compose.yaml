@@ -1,0 +1,7 @@
+services:
+  razor-clock:
+    build:
+      context: ./ClockWeb
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"

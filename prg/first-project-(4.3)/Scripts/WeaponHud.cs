@@ -50,7 +50,7 @@ public partial class WeaponHud : Control
 	private void BuildOverlay()
 	{
 		_overlay = new ColorRect();
-		_overlay.Color = new Color(0.02f, 0.03f, 0.05f, 0.76f);
+		_overlay.Color = new Color(0.01f, 0.02f, 0.05f, 0.82f);
 		_overlay.SetAnchorsPreset(LayoutPreset.FullRect);
 		_overlay.Visible = false;
 		_overlay.MouseFilter = MouseFilterEnum.Ignore;
@@ -65,7 +65,7 @@ public partial class WeaponHud : Control
 
 		_menuPanel = new PanelContainer();
 		_menuPanel.Visible = false;
-		_menuPanel.AddThemeStyleboxOverride("panel", CreateCardStyle(new Color(0.9f, 0.75f, 0.35f), true, false));
+		_menuPanel.AddThemeStyleboxOverride("panel", CreateCardStyle(new Color(0.58f, 0.78f, 1f), true, false));
 		center.AddChild(_menuPanel);
 
 		var menuMargin = new MarginContainer();
@@ -102,13 +102,13 @@ public partial class WeaponHud : Control
 		infoBar.AddThemeConstantOverride("separation", 10);
 		infoRoot.AddChild(infoBar);
 
-		_modeLabel = CreateChipLabel("COMBAT", new Color(0.2f, 0.7f, 1f));
+		_modeLabel = CreateChipLabel("COMBAT", new Color(0.52f, 0.78f, 1f));
 		infoBar.AddChild(_modeLabel);
 
-		_diamondLabel = CreateChipLabel("DIAMONDS 0", new Color(0.9f, 0.78f, 0.32f));
+		_diamondLabel = CreateChipLabel("DIAMONDS 0", new Color(0.7f, 0.8f, 0.92f));
 		infoBar.AddChild(_diamondLabel);
 
-		_directorLabel = CreateChipLabel("SURVIVE", new Color(0.98f, 0.46f, 0.22f));
+		_directorLabel = CreateChipLabel("SURVIVE", new Color(0.62f, 0.88f, 1f));
 		infoBar.AddChild(_directorLabel);
 	}
 
@@ -150,7 +150,7 @@ public partial class WeaponHud : Control
 		_nitroLabel = new Label();
 		_nitroLabel.Text = "NITRO";
 		_nitroLabel.AddThemeFontSizeOverride("font_size", 13);
-		_nitroLabel.AddThemeColorOverride("font_color", new Color(0.24f, 0.9f, 1f));
+		_nitroLabel.AddThemeColorOverride("font_color", new Color(0.62f, 0.88f, 1f));
 		nitroContainer.AddChild(_nitroLabel);
 
 		_nitroBar = new ProgressBar();
@@ -162,12 +162,12 @@ public partial class WeaponHud : Control
 		_nitroBar.CustomMinimumSize = new Vector2(160, 20);
 
 		var barBg = new StyleBoxFlat();
-		barBg.BgColor = new Color(0.1f, 0.12f, 0.16f, 0.92f);
+		barBg.BgColor = new Color(0.06f, 0.08f, 0.12f, 0.94f);
 		barBg.SetCornerRadiusAll(6);
 		_nitroBar.AddThemeStyleboxOverride("background", barBg);
 
 		var barFill = new StyleBoxFlat();
-		barFill.BgColor = new Color(0.1f, 0.85f, 1f, 0.9f);
+		barFill.BgColor = new Color(0.4f, 0.78f, 1f, 0.92f);
 		barFill.SetCornerRadiusAll(6);
 		_nitroBar.AddThemeStyleboxOverride("fill", barFill);
 		nitroContainer.AddChild(_nitroBar);
@@ -250,8 +250,8 @@ public partial class WeaponHud : Control
 		if (_nitroBar.GetThemeStylebox("fill") is StyleBoxFlat fill)
 		{
 			fill.BgColor = nitro < 20f
-				? new Color(1f, 0.3f, 0.2f, 0.9f)
-				: new Color(0.1f, 0.85f, 1f, 0.9f);
+				? new Color(0.97f, 0.45f, 0.35f, 0.9f)
+				: new Color(0.4f, 0.78f, 1f, 0.92f);
 		}
 	}
 
@@ -625,10 +625,11 @@ public partial class WeaponHud : Control
 
 	private Label CreateChipLabel(string text, Color accent)
 	{
+		accent = NormalizeAccent(accent);
 		var label = new Label();
 		label.Text = text;
 		label.AddThemeFontSizeOverride("font_size", 13);
-		label.AddThemeColorOverride("font_color", accent.Lightened(0.2f));
+		label.AddThemeColorOverride("font_color", accent.Lightened(0.24f));
 		label.AddThemeStyleboxOverride("normal", CreateChipStyle(accent));
 		return label;
 	}
@@ -636,7 +637,7 @@ public partial class WeaponHud : Control
 	private StyleBoxFlat CreateChipStyle(Color accent)
 	{
 		var style = new StyleBoxFlat();
-		style.BgColor = new Color(0.08f, 0.1f, 0.14f, 0.9f);
+		style.BgColor = new Color(0.05f, 0.07f, 0.11f, 0.92f);
 		style.BorderColor = accent;
 		style.SetBorderWidthAll(2);
 		style.SetCornerRadiusAll(999);
@@ -649,17 +650,18 @@ public partial class WeaponHud : Control
 
 	private StyleBoxFlat CreateCardStyle(Color accent, bool highlight, bool locked)
 	{
+		accent = NormalizeAccent(accent);
 		var style = new StyleBoxFlat();
 		style.BgColor = locked
-			? new Color(0.08f, 0.09f, 0.11f, 0.94f)
+			? new Color(0.06f, 0.07f, 0.1f, 0.95f)
 			: highlight
-				? new Color(accent, 0.24f)
-				: new Color(0.09f, 0.1f, 0.13f, 0.94f);
+				? new Color(accent, 0.18f)
+				: new Color(0.07f, 0.09f, 0.12f, 0.94f);
 		style.BorderColor = locked
-			? new Color(0.78f, 0.68f, 0.36f, 0.7f)
+			? new Color(0.48f, 0.58f, 0.7f, 0.7f)
 			: highlight
 				? accent
-				: new Color(0.24f, 0.28f, 0.34f, 0.7f);
+				: new Color(0.2f, 0.27f, 0.36f, 0.72f);
 		style.SetBorderWidthAll(highlight ? 3 : 1);
 		style.SetCornerRadiusAll(18);
 		style.SetContentMarginAll(8);
@@ -678,6 +680,7 @@ public partial class WeaponHud : Control
 
 	private Button CreatePrimaryButton(string text, Color accent)
 	{
+		accent = NormalizeAccent(accent);
 		var button = new Button();
 		button.Text = text;
 		button.Flat = true;
@@ -700,8 +703,8 @@ public partial class WeaponHud : Control
 		hover.SetContentMarginAll(12);
 
 		var disabled = new StyleBoxFlat();
-		disabled.BgColor = new Color(0.14f, 0.15f, 0.18f, 0.92f);
-		disabled.BorderColor = new Color(0.36f, 0.38f, 0.42f, 0.8f);
+		disabled.BgColor = new Color(0.1f, 0.11f, 0.15f, 0.92f);
+		disabled.BorderColor = new Color(0.28f, 0.33f, 0.4f, 0.8f);
 		disabled.SetBorderWidthAll(1);
 		disabled.SetCornerRadiusAll(12);
 		disabled.SetContentMarginAll(12);
@@ -711,6 +714,12 @@ public partial class WeaponHud : Control
 		button.AddThemeStyleboxOverride("pressed", hover);
 		button.AddThemeStyleboxOverride("disabled", disabled);
 		return button;
+	}
+
+	private Color NormalizeAccent(Color accent)
+	{
+		Color baseAccent = new Color(0.58f, 0.78f, 1f, accent.A);
+		return accent.Lerp(baseAccent, 0.65f);
 	}
 
 	private string GetWeaponActionText(int index, WeaponData weapon, bool selected)

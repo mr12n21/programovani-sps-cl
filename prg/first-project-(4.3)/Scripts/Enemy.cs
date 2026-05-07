@@ -34,6 +34,7 @@ public abstract partial class Enemy : CharacterBody2D, IDamageable, IPoolable
 	private float _baseMaxHealth;
 	private Vector2 _baseScale;
 	private Color _baseModulate;
+	private Vector2? _spawnPosition;
 
 	public override void _Ready()
 	{
@@ -72,15 +73,20 @@ public abstract partial class Enemy : CharacterBody2D, IDamageable, IPoolable
 		IsBoss = isBoss;
 
 		int safeIntensity = Math.Max(0, intensity);
-		float healthMultiplier = 1f + safeIntensity * 0.18f + (isBoss ? 2.1f : 0f);
-		float speedMultiplier = 1f + safeIntensity * 0.04f + (isBoss ? 0.18f : 0f);
+		float healthMultiplier = 1f + safeIntensity * 0.24f + (isBoss ? 2.8f : 0f);
+		float speedMultiplier = 1f + safeIntensity * 0.055f + (isBoss ? 0.25f : 0f);
 
 		MaxHealth = _baseMaxHealth * healthMultiplier;
 		Speed = _baseSpeed * speedMultiplier;
-		Scale = _baseScale * (isBoss ? 1.45f : 1f + safeIntensity * 0.03f);
-		Modulate = isBoss ? new Color(1f, 0.62f, 0.36f, 1f) : _baseModulate;
-		DiamondReward = isBoss ? 8 + safeIntensity : 1 + safeIntensity / 3;
+		Scale = _baseScale * (isBoss ? 1.65f + safeIntensity * 0.02f : 1f + safeIntensity * 0.035f);
+		Modulate = isBoss ? new Color(0.76f, 0.9f, 1f, 1f) : _baseModulate;
+		DiamondReward = isBoss ? 10 + safeIntensity * 2 : 1 + safeIntensity / 3;
 		Health = MaxHealth;
+	}
+
+	public void SetSpawnPosition(Vector2 position)
+	{
+		_spawnPosition = position;
 	}
 
 	[Export] public Node2D EnemyHead;
@@ -88,6 +94,12 @@ public abstract partial class Enemy : CharacterBody2D, IDamageable, IPoolable
 	{
 		if (!IsActive || Target == null || Agent == null || EnemyHead == null)
 		{
+			return;
+		}
+
+		if (Game.Instance != null && Game.Instance.ShouldRecycleEnemy(GlobalPosition, Target.GlobalPosition))
+		{
+			Deactivate();
 			return;
 		}
 
@@ -111,11 +123,7 @@ public abstract partial class Enemy : CharacterBody2D, IDamageable, IPoolable
 		}
 
 		Health = MaxHealth;
-		Vector2 RandomDirection = new Vector2(RandomFloat(-1f, 1f), RandomFloat(-1f, 1f)).Normalized();
-		if (RandomDirection.X == 0 && RandomDirection.Y == 0) RandomDirection = Vector2.Right;
-		float spawnRadius = IsBoss ? 760f : 500f;
-		Vector2 RandomPosition = RandomDirection * spawnRadius;
-		GlobalPosition = Target.GlobalPosition + RandomPosition;
+		GlobalPosition = _spawnPosition ?? Target.GlobalPosition;
 		IsActive = true;
 		Poolable.Activate(this);
 		Game.Instance?.RegisterEnemySpawn(this);
@@ -143,11 +151,7 @@ public abstract partial class Enemy : CharacterBody2D, IDamageable, IPoolable
 		Scale = _baseScale;
 		Modulate = _baseModulate;
 		Target = null;
+		_spawnPosition = null;
 		Health = MaxHealth;
-	}
-
-	private float RandomFloat(float minValue, float maxValue)
-	{
-		return minValue + (maxValue - minValue) * GD.Randf();
 	}
 }
