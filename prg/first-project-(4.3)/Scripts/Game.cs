@@ -31,7 +31,8 @@ public partial class Game : Node2D
 	private bool _bossAlive = false;
 	private float _runTime = 0f;
 	private float _refillCooldown = 0f;
-	private Rect2 _worldBounds = Rect2.Zero;
+	private Rect2 _worldBounds = new Rect2();
+	private int _enemyPoolCapacity = 0;
 	
 	public override void _Ready()
 	{
@@ -45,6 +46,10 @@ public partial class Game : Node2D
 			{
 				Node node = poolObject.Prefab.Instantiate();
 				if (node is not IPoolable poolable) break;
+				if (node is Enemy)
+				{
+					_enemyPoolCapacity += 1;
+				}
 				_objectnames[node.GetType()] = name;
 				nodes.Enqueue(node);
 				AddChild(node);
@@ -278,7 +283,10 @@ public partial class Game : Node2D
 	private int GetTargetEnemyCount()
 	{
 		int targetEnemies = BaseTargetEnemies + (int)(_runTime / 18f) + (_kills / 6) + _bossesSpawned;
-		return Mathf.Clamp(targetEnemies, BaseTargetEnemies, MaxTargetEnemies);
+		int capacityLimit = _enemyPoolCapacity > 0 ? _enemyPoolCapacity : MaxTargetEnemies;
+		int maxAllowed = Mathf.Min(MaxTargetEnemies, capacityLimit);
+		int minAllowed = Mathf.Min(BaseTargetEnemies, maxAllowed);
+		return Mathf.Clamp(targetEnemies, minAllowed, maxAllowed);
 	}
 
 	private float GetCurrentSpawnInterval()

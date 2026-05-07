@@ -28,6 +28,12 @@ public partial class RangeEnemy : Enemy
 			return;
 		}
 
+		if (Game.Instance != null && Game.Instance.ShouldRecycleEnemy(GlobalPosition, Target.GlobalPosition))
+		{
+			Deactivate();
+			return;
+		}
+
 		if (Target.GlobalPosition.DistanceTo(GlobalPosition) > 300)
 		{
 			base._PhysicsProcess(delta);
