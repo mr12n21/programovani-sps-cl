@@ -5,6 +5,11 @@ using System.Collections.Generic;
 public partial class WeaponInventory : Node
 {
 	[Export] public Godot.Collections.Array<WeaponData> Weapons { get; set; } = new();
+	[Export(PropertyHint.Range, "0,9999,1")] public int DebugDiamonds
+	{
+		get => _diamonds;
+		set => SetDiamonds(value);
+	}
 	
 	private int _currentIndex = 0;
 	private int _diamonds = 0;
@@ -111,10 +116,31 @@ public partial class WeaponInventory : Node
 		{
 			return;
 		}
+		
+		SetDiamonds(_diamonds + amount);
+	}
 
-		_diamonds += amount;
+	public void SetDiamonds(int amount)
+	{
+		int clampedAmount = Mathf.Max(0, amount);
+		if (clampedAmount == _diamonds)
+		{
+			return;
+		}
+
+		_diamonds = clampedAmount;
 		OnDiamondsChanged?.Invoke(_diamonds);
 		OnInventoryUpdated?.Invoke();
+	}
+
+	public void ChangeDiamonds(int delta)
+	{
+		if (delta == 0)
+		{
+			return;
+		}
+
+		SetDiamonds(_diamonds + delta);
 	}
 
 	public bool UnlockWeapon(int index)

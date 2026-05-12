@@ -97,7 +97,7 @@ public abstract partial class Enemy : CharacterBody2D, IDamageable, IPoolable
 			return;
 		}
 
-		if (Game.Instance != null && Game.Instance.ShouldRecycleEnemy(GlobalPosition, Target.GlobalPosition))
+		if (!IsBoss && Game.Instance != null && Game.Instance.ShouldRecycleEnemy(GlobalPosition, Target.GlobalPosition))
 		{
 			Deactivate();
 			return;

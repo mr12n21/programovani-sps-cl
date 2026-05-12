@@ -15,7 +15,6 @@ public partial class WeaponHud : Control
 	private ColorRect _overlay;
 	private MarginContainer _overlayFrame;
 	private PanelContainer _menuPanel;
-	private ScrollContainer _menuScroll;
 	private VBoxContainer _menuContent;
 	private ScrollContainer _bottomBarScroll;
 	private HBoxContainer _bottomBar;
@@ -50,7 +49,7 @@ public partial class WeaponHud : Control
 	private void BuildOverlay()
 	{
 		_overlay = new ColorRect();
-		_overlay.Color = new Color(0.01f, 0.02f, 0.05f, 0.82f);
+		_overlay.Color = new Color(0.01f, 0.02f, 0.05f, 0.9f);
 		_overlay.SetAnchorsPreset(LayoutPreset.FullRect);
 		_overlay.Visible = false;
 		_overlay.MouseFilter = MouseFilterEnum.Ignore;
@@ -65,25 +64,21 @@ public partial class WeaponHud : Control
 
 		_menuPanel = new PanelContainer();
 		_menuPanel.Visible = false;
-		_menuPanel.AddThemeStyleboxOverride("panel", CreateCardStyle(new Color(0.58f, 0.78f, 1f), true, false));
+		_menuPanel.AddThemeStyleboxOverride("panel", CreateCardStyle(new Color(0.96f, 0.74f, 0.34f), true, false));
 		center.AddChild(_menuPanel);
 
 		var menuMargin = new MarginContainer();
-		menuMargin.AddThemeConstantOverride("margin_left", 22);
-		menuMargin.AddThemeConstantOverride("margin_top", 22);
-		menuMargin.AddThemeConstantOverride("margin_right", 22);
-		menuMargin.AddThemeConstantOverride("margin_bottom", 22);
+		menuMargin.AddThemeConstantOverride("margin_left", 24);
+		menuMargin.AddThemeConstantOverride("margin_top", 24);
+		menuMargin.AddThemeConstantOverride("margin_right", 24);
+		menuMargin.AddThemeConstantOverride("margin_bottom", 24);
 		_menuPanel.AddChild(menuMargin);
 
-		_menuScroll = new ScrollContainer();
-		_menuScroll.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-		_menuScroll.SizeFlagsVertical = SizeFlags.ExpandFill;
-		menuMargin.AddChild(_menuScroll);
-
 		_menuContent = new VBoxContainer();
-		_menuContent.AddThemeConstantOverride("separation", 18);
+		_menuContent.AddThemeConstantOverride("separation", 22);
 		_menuContent.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-		_menuScroll.AddChild(_menuContent);
+		_menuContent.SizeFlagsVertical = SizeFlags.ExpandFill;
+		menuMargin.AddChild(_menuContent);
 	}
 
 	private void BuildTopInfo()
@@ -299,19 +294,20 @@ public partial class WeaponHud : Control
 
 		for (int i = 0; i < Inventory.Weapons.Count; i++)
 		{
-			var weapon = Inventory.Weapons[i];
-			bool selected = i == Inventory.CurrentIndex;
+			int buttonIndex = i;
+			var weapon = Inventory.Weapons[buttonIndex];
+			bool selected = buttonIndex == Inventory.CurrentIndex;
 			bool locked = !weapon.IsUnlocked;
 
 			var button = new Button();
 			button.Flat = true;
 			button.FocusMode = FocusModeEnum.None;
-			button.CustomMinimumSize = new Vector2(160, 82);
+			button.CustomMinimumSize = new Vector2(148, 82);
 			button.AddThemeStyleboxOverride("normal", CreateCardStyle(weapon.Color, selected, locked));
 			button.AddThemeStyleboxOverride("hover", CreateCardStyle(weapon.Color, true, locked));
 			button.AddThemeStyleboxOverride("pressed", CreateCardStyle(weapon.Color, true, locked));
 			button.AddThemeStyleboxOverride("disabled", CreateCardStyle(weapon.Color, selected, locked));
-			button.Pressed += () => OnBottomBarPressed(i);
+			button.Pressed += () => OnBottomBarPressed(buttonIndex);
 			_bottomBar.AddChild(button);
 
 			var margin = new MarginContainer();
@@ -343,15 +339,15 @@ public partial class WeaponHud : Control
 
 			var nameLabel = new Label();
 			nameLabel.Text = locked ? $"{weapon.Name} LOCKED" : weapon.Name;
-			nameLabel.AddThemeFontSizeOverride("font_size", selected ? 14 : 12);
+			nameLabel.AddThemeFontSizeOverride("font_size", selected ? 15 : 13);
 			nameLabel.AddThemeColorOverride("font_color", locked ? new Color(0.82f, 0.82f, 0.86f, 0.7f) : Colors.White);
 			textColumn.AddChild(nameLabel);
 
 			var subLabel = new Label();
 			subLabel.Text = locked
-				? $"Unlock {weapon.UnlockCost} diamonds"
-				: $"[{i + 1}]  LVL {weapon.Level}";
-			subLabel.AddThemeFontSizeOverride("font_size", 10);
+				? $"Unlock {weapon.UnlockCost}"
+				: $"[{buttonIndex + 1}]  LVL {weapon.Level}";
+			subLabel.AddThemeFontSizeOverride("font_size", 11);
 			subLabel.AddThemeColorOverride("font_color", locked ? new Color(0.88f, 0.72f, 0.36f) : new Color(0.75f, 0.82f, 0.9f));
 			textColumn.AddChild(subLabel);
 		}
@@ -378,35 +374,25 @@ public partial class WeaponHud : Control
 	private void BuildInventoryMenu()
 	{
 		var header = new VBoxContainer();
-		header.AddThemeConstantOverride("separation", 8);
+		header.AddThemeConstantOverride("separation", 10);
 		_menuContent.AddChild(header);
 
 		var title = new Label();
 		title.Text = "WEAPON INVENTORY";
 		title.HorizontalAlignment = HorizontalAlignment.Center;
-		title.AddThemeFontSizeOverride("font_size", 34);
-		title.AddThemeColorOverride("font_color", new Color(0.98f, 0.88f, 0.66f));
+		title.AddThemeFontSizeOverride("font_size", 40);
+		title.AddThemeColorOverride("font_color", new Color(1f, 0.9f, 0.68f));
 		header.AddChild(title);
 
 		var subtitle = new Label();
-		subtitle.Text = "Click to equip, unlock or upgrade weapons.";
+		subtitle.Text = "All weapons stay visible at once. Click any card to equip, unlock or upgrade.";
 		subtitle.HorizontalAlignment = HorizontalAlignment.Center;
-		subtitle.AddThemeFontSizeOverride("font_size", 14);
-		subtitle.AddThemeColorOverride("font_color", new Color(0.76f, 0.8f, 0.88f));
+		subtitle.AddThemeFontSizeOverride("font_size", 16);
+		subtitle.AddThemeColorOverride("font_color", new Color(0.82f, 0.86f, 0.92f));
 		header.AddChild(subtitle);
 
-		var topActions = new HBoxContainer();
-		topActions.Alignment = BoxContainer.AlignmentMode.Center;
-		topActions.AddThemeConstantOverride("separation", 10);
-		_menuContent.AddChild(topActions);
-
-		var pauseButton = CreatePrimaryButton("Pause Menu", new Color(0.98f, 0.58f, 0.22f));
-		pauseButton.Pressed += () => FindPlayer()?.OpenPauseMenu();
-		topActions.AddChild(pauseButton);
-
-		var resumeButton = CreatePrimaryButton("Resume", new Color(0.2f, 0.78f, 0.46f));
-		resumeButton.Pressed += () => FindPlayer()?.CloseMenus();
-		topActions.AddChild(resumeButton);
+		_menuContent.AddChild(CreateSummaryRow());
+		_menuContent.AddChild(CreateMenuNavigation(OverlayMode.Inventory));
 
 		var cardsCenter = new CenterContainer();
 		cardsCenter.SizeFlagsHorizontal = SizeFlags.ExpandFill;
@@ -415,8 +401,8 @@ public partial class WeaponHud : Control
 
 		var grid = new GridContainer();
 		grid.Columns = GetInventoryColumnCount();
-		grid.AddThemeConstantOverride("h_separation", 16);
-		grid.AddThemeConstantOverride("v_separation", 16);
+		grid.AddThemeConstantOverride("h_separation", 12);
+		grid.AddThemeConstantOverride("v_separation", 12);
 		cardsCenter.AddChild(grid);
 
 		if (Inventory == null)
@@ -430,65 +416,131 @@ public partial class WeaponHud : Control
 		}
 
 		var hint = new Label();
-		hint.Text = "Mouse: click cards to equip or buy  |  Mouse wheel / [1-5]: quick switch  |  [TAB]: close";
+		hint.Text = "Click a card to equip or buy  |  Mouse wheel or [1-5] for quick switch  |  [TAB] closes inventory";
 		hint.HorizontalAlignment = HorizontalAlignment.Center;
-		hint.AddThemeFontSizeOverride("font_size", 13);
-		hint.AddThemeColorOverride("font_color", new Color(0.72f, 0.76f, 0.84f));
+		hint.AddThemeFontSizeOverride("font_size", 14);
+		hint.AddThemeColorOverride("font_color", new Color(0.78f, 0.82f, 0.9f));
 		_menuContent.AddChild(hint);
 	}
 
 	private void BuildPauseMenu()
 	{
+		var header = new VBoxContainer();
+		header.AddThemeConstantOverride("separation", 10);
+		_menuContent.AddChild(header);
+
 		var title = new Label();
 		title.Text = "GAME MENU";
 		title.HorizontalAlignment = HorizontalAlignment.Center;
-		title.AddThemeFontSizeOverride("font_size", 36);
-		title.AddThemeColorOverride("font_color", new Color(0.98f, 0.82f, 0.48f));
-		_menuContent.AddChild(title);
+		title.AddThemeFontSizeOverride("font_size", 42);
+		title.AddThemeColorOverride("font_color", new Color(1f, 0.84f, 0.52f));
+		header.AddChild(title);
 
 		var subtitle = new Label();
-		subtitle.Text = "Pause, adjust loadout, then jump back into the run.";
+		subtitle.Text = "High-contrast pause screen with direct access to loadout and test currency.";
 		subtitle.HorizontalAlignment = HorizontalAlignment.Center;
-		subtitle.AddThemeFontSizeOverride("font_size", 14);
-		subtitle.AddThemeColorOverride("font_color", new Color(0.76f, 0.8f, 0.88f));
-		_menuContent.AddChild(subtitle);
+		subtitle.AddThemeFontSizeOverride("font_size", 16);
+		subtitle.AddThemeColorOverride("font_color", new Color(0.82f, 0.86f, 0.92f));
+		header.AddChild(subtitle);
 
-		var statsRow = new HBoxContainer();
-		statsRow.Alignment = BoxContainer.AlignmentMode.Center;
-		statsRow.AddThemeConstantOverride("separation", 12);
-		_menuContent.AddChild(statsRow);
+		_menuContent.AddChild(CreateSummaryRow());
+		_menuContent.AddChild(CreateMenuNavigation(OverlayMode.PauseMenu));
 
-		statsRow.AddChild(CreateChipLabel($"DIAMONDS {Inventory?.Diamonds ?? 0}", new Color(0.9f, 0.75f, 0.35f)));
-		statsRow.AddChild(CreateChipLabel($"WEAPON {(Inventory?.CurrentWeapon?.Name ?? "NONE")}", new Color(0.24f, 0.72f, 1f)));
-		statsRow.AddChild(CreateChipLabel(_directorLabel?.Text ?? "SURVIVE", new Color(0.98f, 0.46f, 0.22f)));
+		var sectionGrid = new GridContainer();
+		sectionGrid.Columns = GetPauseSectionColumnCount();
+		sectionGrid.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		sectionGrid.SizeFlagsVertical = SizeFlags.ExpandFill;
+		sectionGrid.AddThemeConstantOverride("h_separation", 18);
+		sectionGrid.AddThemeConstantOverride("v_separation", 18);
+		_menuContent.AddChild(sectionGrid);
 
-		var buttonColumn = new VBoxContainer();
-		buttonColumn.Alignment = BoxContainer.AlignmentMode.Center;
-		buttonColumn.AddThemeConstantOverride("separation", 14);
-		buttonColumn.SizeFlagsVertical = SizeFlags.ExpandFill;
-		_menuContent.AddChild(buttonColumn);
-
-		var resumeButton = CreatePrimaryButton("Resume Run", new Color(0.2f, 0.78f, 0.46f));
-		resumeButton.CustomMinimumSize = new Vector2(300, 54);
-		resumeButton.Pressed += () => FindPlayer()?.CloseMenus();
-		buttonColumn.AddChild(resumeButton);
-
-		var inventoryButton = CreatePrimaryButton("Open Inventory", new Color(0.24f, 0.72f, 1f));
-		inventoryButton.CustomMinimumSize = new Vector2(300, 54);
-		inventoryButton.Pressed += () => FindPlayer()?.OpenInventoryMenu();
-		buttonColumn.AddChild(inventoryButton);
-
-		var quitButton = CreatePrimaryButton("Quit Game", new Color(0.98f, 0.34f, 0.26f));
-		quitButton.CustomMinimumSize = new Vector2(300, 54);
-		quitButton.Pressed += () => GetTree().Quit();
-		buttonColumn.AddChild(quitButton);
+		sectionGrid.AddChild(CreatePauseActionSection());
+		sectionGrid.AddChild(CreateDiamondDebugSection());
 
 		var hint = new Label();
-		hint.Text = "[ESC] toggles the menu  |  [TAB] opens the inventory";
+		hint.Text = "[ESC] closes the menu  |  [TAB] opens inventory  |  test diamonds update instantly";
 		hint.HorizontalAlignment = HorizontalAlignment.Center;
-		hint.AddThemeFontSizeOverride("font_size", 13);
-		hint.AddThemeColorOverride("font_color", new Color(0.72f, 0.76f, 0.84f));
+		hint.AddThemeFontSizeOverride("font_size", 14);
+		hint.AddThemeColorOverride("font_color", new Color(0.78f, 0.82f, 0.9f));
 		_menuContent.AddChild(hint);
+	}
+
+	private PanelContainer CreatePauseActionSection()
+	{
+		var panel = CreateMenuSection(new Color(0.28f, 0.72f, 1f));
+		var column = AddSectionContent(panel);
+
+		column.AddChild(CreateSectionTitle("RUN CONTROLS", new Color(0.72f, 0.88f, 1f)));
+		column.AddChild(CreateSectionText("Large buttons for the three actions you use most while paused."));
+
+		var resumeButton = CreatePrimaryButton("Resume Run", new Color(0.2f, 0.78f, 0.46f));
+		resumeButton.CustomMinimumSize = new Vector2(0, 58);
+		resumeButton.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		resumeButton.Pressed += () => FindPlayer()?.CloseMenus();
+		column.AddChild(resumeButton);
+
+		var inventoryButton = CreatePrimaryButton("Open Inventory", new Color(0.24f, 0.72f, 1f));
+		inventoryButton.CustomMinimumSize = new Vector2(0, 58);
+		inventoryButton.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		inventoryButton.Pressed += () => FindPlayer()?.OpenInventoryMenu();
+		column.AddChild(inventoryButton);
+
+		var quitButton = CreatePrimaryButton("Quit Game", new Color(0.98f, 0.34f, 0.26f));
+		quitButton.CustomMinimumSize = new Vector2(0, 58);
+		quitButton.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		quitButton.Pressed += () => GetTree().Quit();
+		column.AddChild(quitButton);
+
+		return panel;
+	}
+
+	private PanelContainer CreateDiamondDebugSection()
+	{
+		var panel = CreateMenuSection(new Color(0.96f, 0.74f, 0.34f));
+		var column = AddSectionContent(panel);
+
+		column.AddChild(CreateSectionTitle("TEST DIAMONDS", new Color(1f, 0.88f, 0.54f)));
+		column.AddChild(CreateSectionText("Change your current diamonds instantly while testing unlocks and upgrades."));
+
+		var amountLabel = new Label();
+		amountLabel.Text = $"CURRENT: {Inventory?.Diamonds ?? 0}";
+		amountLabel.HorizontalAlignment = HorizontalAlignment.Center;
+		amountLabel.AddThemeFontSizeOverride("font_size", 24);
+		amountLabel.AddThemeColorOverride("font_color", new Color(1f, 0.96f, 0.82f));
+		column.AddChild(amountLabel);
+
+		var buttonRow = new GridContainer();
+		buttonRow.Columns = 2;
+		buttonRow.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		buttonRow.AddThemeConstantOverride("h_separation", 12);
+		buttonRow.AddThemeConstantOverride("v_separation", 12);
+		column.AddChild(buttonRow);
+
+		var minusButton = CreatePrimaryButton("-25", new Color(0.98f, 0.4f, 0.32f));
+		minusButton.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		minusButton.CustomMinimumSize = new Vector2(0, 52);
+		minusButton.Pressed += () => Inventory?.ChangeDiamonds(-25);
+		buttonRow.AddChild(minusButton);
+
+		var plusButton = CreatePrimaryButton("+25", new Color(0.96f, 0.74f, 0.34f));
+		plusButton.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		plusButton.CustomMinimumSize = new Vector2(0, 52);
+		plusButton.Pressed += () => Inventory?.ChangeDiamonds(25);
+		buttonRow.AddChild(plusButton);
+
+		var plusBigButton = CreatePrimaryButton("+100", new Color(0.46f, 0.86f, 0.46f));
+		plusBigButton.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		plusBigButton.CustomMinimumSize = new Vector2(0, 52);
+		plusBigButton.Pressed += () => Inventory?.ChangeDiamonds(100);
+		buttonRow.AddChild(plusBigButton);
+
+		var resetButton = CreatePrimaryButton("Reset 0", new Color(0.54f, 0.66f, 0.92f));
+		resetButton.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		resetButton.CustomMinimumSize = new Vector2(0, 52);
+		resetButton.Pressed += () => Inventory?.SetDiamonds(0);
+		buttonRow.AddChild(resetButton);
+
+		return panel;
 	}
 
 	private PanelContainer CreateWeaponCard(int index, WeaponData weapon)
@@ -501,29 +553,29 @@ public partial class WeaponHud : Control
 		card.AddThemeStyleboxOverride("panel", CreateCardStyle(weapon.Color, selected, locked));
 
 		var margin = new MarginContainer();
-		margin.AddThemeConstantOverride("margin_left", 14);
-		margin.AddThemeConstantOverride("margin_top", 14);
-		margin.AddThemeConstantOverride("margin_right", 14);
-		margin.AddThemeConstantOverride("margin_bottom", 14);
+		margin.AddThemeConstantOverride("margin_left", 12);
+		margin.AddThemeConstantOverride("margin_top", 12);
+		margin.AddThemeConstantOverride("margin_right", 12);
+		margin.AddThemeConstantOverride("margin_bottom", 12);
 		card.AddChild(margin);
 
 		var column = new VBoxContainer();
-		column.AddThemeConstantOverride("separation", 8);
+		column.AddThemeConstantOverride("separation", 6);
 		margin.AddChild(column);
 
 		var keyLabel = new Label();
 		keyLabel.Text = $"[{index + 1}]";
 		keyLabel.HorizontalAlignment = HorizontalAlignment.Center;
-		keyLabel.AddThemeFontSizeOverride("font_size", 13);
+		keyLabel.AddThemeFontSizeOverride("font_size", 12);
 		keyLabel.AddThemeColorOverride("font_color", new Color(0.72f, 0.78f, 0.86f));
 		column.AddChild(keyLabel);
 
 		var imageContainer = new CenterContainer();
-		imageContainer.CustomMinimumSize = new Vector2(100, 110);
+		imageContainer.CustomMinimumSize = new Vector2(88, 74);
 		column.AddChild(imageContainer);
 
 		var image = new TextureRect();
-		image.CustomMinimumSize = new Vector2(88, 88);
+		image.CustomMinimumSize = new Vector2(60, 60);
 		image.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
 		image.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 		if (!string.IsNullOrEmpty(weapon.IconPath))
@@ -535,7 +587,7 @@ public partial class WeaponHud : Control
 		var nameLabel = new Label();
 		nameLabel.Text = weapon.Name;
 		nameLabel.HorizontalAlignment = HorizontalAlignment.Center;
-		nameLabel.AddThemeFontSizeOverride("font_size", 18);
+		nameLabel.AddThemeFontSizeOverride("font_size", 16);
 		nameLabel.AddThemeColorOverride("font_color", Colors.White);
 		column.AddChild(nameLabel);
 
@@ -543,13 +595,10 @@ public partial class WeaponHud : Control
 		descLabel.Text = weapon.Description;
 		descLabel.HorizontalAlignment = HorizontalAlignment.Center;
 		descLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-		descLabel.CustomMinimumSize = new Vector2(0, 52);
-		descLabel.AddThemeFontSizeOverride("font_size", 11);
+		descLabel.CustomMinimumSize = new Vector2(0, 40);
+		descLabel.AddThemeFontSizeOverride("font_size", 12);
 		descLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.84f, 0.9f));
 		column.AddChild(descLabel);
-
-		var separator = new HSeparator();
-		column.AddChild(separator);
 
 		column.AddChild(CreateStatLabel($"Damage  {weapon.Damage:0.#}", new Color(1f, 0.56f, 0.4f)));
 		column.AddChild(CreateStatLabel($"Rate    {weapon.FireRate:0.##}/s", new Color(0.38f, 0.82f, 1f)));
@@ -565,14 +614,14 @@ public partial class WeaponHud : Control
 					: "Fully upgraded";
 		stateLabel.HorizontalAlignment = HorizontalAlignment.Center;
 		stateLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-		stateLabel.CustomMinimumSize = new Vector2(0, 38);
-		stateLabel.AddThemeFontSizeOverride("font_size", 11);
+		stateLabel.CustomMinimumSize = new Vector2(0, 34);
+		stateLabel.AddThemeFontSizeOverride("font_size", 12);
 		stateLabel.AddThemeColorOverride("font_color", locked ? new Color(0.96f, 0.78f, 0.42f) : weapon.Color);
 		column.AddChild(stateLabel);
 
 		var actionButton = CreatePrimaryButton(GetWeaponActionText(index, weapon, selected), weapon.Color);
 		actionButton.Disabled = locked ? Inventory.Diamonds < weapon.UnlockCost : selected && !weapon.CanUpgrade();
-		actionButton.CustomMinimumSize = new Vector2(0, 46);
+		actionButton.CustomMinimumSize = new Vector2(0, 44);
 		actionButton.Pressed += () => HandleWeaponAction(index);
 		column.AddChild(actionButton);
 
@@ -623,12 +672,97 @@ public partial class WeaponHud : Control
 		return GetTree().Root.GetNodeOrNull<Game>("Game")?.GetNodeOrNull<Player>("Player");
 	}
 
+	private HBoxContainer CreateSummaryRow()
+	{
+		var statsRow = new HBoxContainer();
+		statsRow.Alignment = BoxContainer.AlignmentMode.Center;
+		statsRow.AddThemeConstantOverride("separation", 12);
+		statsRow.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		statsRow.AddChild(CreateChipLabel($"DIAMONDS {Inventory?.Diamonds ?? 0}", new Color(0.94f, 0.76f, 0.34f)));
+		statsRow.AddChild(CreateChipLabel($"WEAPON {(Inventory?.CurrentWeapon?.Name ?? "NONE")}", new Color(0.32f, 0.76f, 1f)));
+		statsRow.AddChild(CreateChipLabel(_directorLabel?.Text ?? "SURVIVE", new Color(0.98f, 0.46f, 0.22f)));
+		return statsRow;
+	}
+
+	private HBoxContainer CreateMenuNavigation(OverlayMode activeMode)
+	{
+		var nav = new HBoxContainer();
+		nav.Alignment = BoxContainer.AlignmentMode.Center;
+		nav.AddThemeConstantOverride("separation", 12);
+		nav.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+
+		var inventoryButton = CreatePrimaryButton("Inventory", new Color(0.3f, 0.72f, 1f));
+		inventoryButton.CustomMinimumSize = new Vector2(180, 50);
+		inventoryButton.Disabled = activeMode == OverlayMode.Inventory;
+		inventoryButton.Pressed += () => FindPlayer()?.OpenInventoryMenu();
+		nav.AddChild(inventoryButton);
+
+		var pauseButton = CreatePrimaryButton("Game Menu", new Color(0.98f, 0.6f, 0.26f));
+		pauseButton.CustomMinimumSize = new Vector2(180, 50);
+		pauseButton.Disabled = activeMode == OverlayMode.PauseMenu;
+		pauseButton.Pressed += () => FindPlayer()?.OpenPauseMenu();
+		nav.AddChild(pauseButton);
+
+		var resumeButton = CreatePrimaryButton("Resume", new Color(0.22f, 0.78f, 0.46f));
+		resumeButton.CustomMinimumSize = new Vector2(180, 50);
+		resumeButton.Pressed += () => FindPlayer()?.CloseMenus();
+		nav.AddChild(resumeButton);
+
+		return nav;
+	}
+
+	private PanelContainer CreateMenuSection(Color accent)
+	{
+		var panel = new PanelContainer();
+		panel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+		panel.SizeFlagsVertical = SizeFlags.ExpandFill;
+		panel.CustomMinimumSize = new Vector2(0f, 240f);
+		panel.AddThemeStyleboxOverride("panel", CreateCardStyle(accent, true, false));
+		return panel;
+	}
+
+	private VBoxContainer AddSectionContent(PanelContainer panel)
+	{
+		var margin = new MarginContainer();
+		margin.AddThemeConstantOverride("margin_left", 18);
+		margin.AddThemeConstantOverride("margin_top", 18);
+		margin.AddThemeConstantOverride("margin_right", 18);
+		margin.AddThemeConstantOverride("margin_bottom", 18);
+		panel.AddChild(margin);
+
+		var column = new VBoxContainer();
+		column.AddThemeConstantOverride("separation", 12);
+		margin.AddChild(column);
+		return column;
+	}
+
+	private Label CreateSectionTitle(string text, Color color)
+	{
+		var label = new Label();
+		label.Text = text;
+		label.HorizontalAlignment = HorizontalAlignment.Center;
+		label.AddThemeFontSizeOverride("font_size", 24);
+		label.AddThemeColorOverride("font_color", color);
+		return label;
+	}
+
+	private Label CreateSectionText(string text)
+	{
+		var label = new Label();
+		label.Text = text;
+		label.HorizontalAlignment = HorizontalAlignment.Center;
+		label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+		label.AddThemeFontSizeOverride("font_size", 15);
+		label.AddThemeColorOverride("font_color", new Color(0.82f, 0.86f, 0.92f));
+		return label;
+	}
+
 	private Label CreateChipLabel(string text, Color accent)
 	{
 		accent = NormalizeAccent(accent);
 		var label = new Label();
 		label.Text = text;
-		label.AddThemeFontSizeOverride("font_size", 13);
+		label.AddThemeFontSizeOverride("font_size", 15);
 		label.AddThemeColorOverride("font_color", accent.Lightened(0.24f));
 		label.AddThemeStyleboxOverride("normal", CreateChipStyle(accent));
 		return label;
@@ -641,10 +775,10 @@ public partial class WeaponHud : Control
 		style.BorderColor = accent;
 		style.SetBorderWidthAll(2);
 		style.SetCornerRadiusAll(999);
-		style.ContentMarginLeft = 14;
-		style.ContentMarginTop = 8;
-		style.ContentMarginRight = 14;
-		style.ContentMarginBottom = 8;
+		style.ContentMarginLeft = 16;
+		style.ContentMarginTop = 9;
+		style.ContentMarginRight = 16;
+		style.ContentMarginBottom = 9;
 		return style;
 	}
 
@@ -655,14 +789,14 @@ public partial class WeaponHud : Control
 		style.BgColor = locked
 			? new Color(0.06f, 0.07f, 0.1f, 0.95f)
 			: highlight
-				? new Color(accent, 0.18f)
-				: new Color(0.07f, 0.09f, 0.12f, 0.94f);
+				? new Color(accent, 0.22f)
+				: new Color(0.07f, 0.09f, 0.12f, 0.97f);
 		style.BorderColor = locked
 			? new Color(0.48f, 0.58f, 0.7f, 0.7f)
 			: highlight
 				? accent
 				: new Color(0.2f, 0.27f, 0.36f, 0.72f);
-		style.SetBorderWidthAll(highlight ? 3 : 1);
+		style.SetBorderWidthAll(highlight ? 3 : 2);
 		style.SetCornerRadiusAll(18);
 		style.SetContentMarginAll(8);
 		return style;
@@ -673,7 +807,7 @@ public partial class WeaponHud : Control
 		var label = new Label();
 		label.Text = text;
 		label.HorizontalAlignment = HorizontalAlignment.Center;
-		label.AddThemeFontSizeOverride("font_size", 12);
+		label.AddThemeFontSizeOverride("font_size", 13);
 		label.AddThemeColorOverride("font_color", color);
 		return label;
 	}
@@ -685,29 +819,29 @@ public partial class WeaponHud : Control
 		button.Text = text;
 		button.Flat = true;
 		button.FocusMode = FocusModeEnum.None;
-		button.AddThemeFontSizeOverride("font_size", 13);
+		button.AddThemeFontSizeOverride("font_size", 16);
 		button.AddThemeColorOverride("font_color", Colors.White);
 
 		var normal = new StyleBoxFlat();
 		normal.BgColor = new Color(accent, 0.22f);
 		normal.BorderColor = accent;
 		normal.SetBorderWidthAll(2);
-		normal.SetCornerRadiusAll(12);
-		normal.SetContentMarginAll(12);
+		normal.SetCornerRadiusAll(14);
+		normal.SetContentMarginAll(14);
 
 		var hover = new StyleBoxFlat();
 		hover.BgColor = new Color(accent, 0.32f);
 		hover.BorderColor = accent.Lightened(0.1f);
 		hover.SetBorderWidthAll(2);
-		hover.SetCornerRadiusAll(12);
-		hover.SetContentMarginAll(12);
+		hover.SetCornerRadiusAll(14);
+		hover.SetContentMarginAll(14);
 
 		var disabled = new StyleBoxFlat();
 		disabled.BgColor = new Color(0.1f, 0.11f, 0.15f, 0.92f);
 		disabled.BorderColor = new Color(0.28f, 0.33f, 0.4f, 0.8f);
 		disabled.SetBorderWidthAll(1);
-		disabled.SetCornerRadiusAll(12);
-		disabled.SetContentMarginAll(12);
+		disabled.SetCornerRadiusAll(14);
+		disabled.SetContentMarginAll(14);
 
 		button.AddThemeStyleboxOverride("normal", normal);
 		button.AddThemeStyleboxOverride("hover", hover);
@@ -752,9 +886,9 @@ public partial class WeaponHud : Control
 
 		if (_overlayFrame != null)
 		{
-			int horizontalMargin = (int)Mathf.Clamp(viewportSize.X * 0.035f, 14f, 42f);
-			int topMargin = (int)Mathf.Clamp(viewportSize.Y * 0.04f, 14f, 40f);
-			int bottomMargin = (int)Mathf.Clamp(viewportSize.Y * 0.14f, 88f, 130f);
+			int horizontalMargin = (int)Mathf.Clamp(viewportSize.X * 0.018f, 10f, 24f);
+			int topMargin = (int)Mathf.Clamp(viewportSize.Y * 0.025f, 10f, 26f);
+			int bottomMargin = (int)Mathf.Clamp(viewportSize.Y * 0.08f, 42f, 82f);
 			_overlayFrame.AddThemeConstantOverride("margin_left", horizontalMargin);
 			_overlayFrame.AddThemeConstantOverride("margin_top", topMargin);
 			_overlayFrame.AddThemeConstantOverride("margin_right", horizontalMargin);
@@ -763,8 +897,8 @@ public partial class WeaponHud : Control
 
 		if (_menuPanel != null)
 		{
-			float panelWidth = Mathf.Clamp(viewportSize.X - 80f, 300f, 1180f);
-			float panelHeight = Mathf.Clamp(viewportSize.Y - 130f, 320f, 760f);
+			float panelWidth = Mathf.Clamp(viewportSize.X - 28f, 320f, 1400f);
+			float panelHeight = Mathf.Clamp(viewportSize.Y - 68f, 380f, 840f);
 			_menuPanel.CustomMinimumSize = new Vector2(panelWidth, panelHeight);
 		}
 
@@ -783,17 +917,22 @@ public partial class WeaponHud : Control
 			return 1;
 		}
 
-		if (viewportWidth < 980f)
+		if (viewportWidth < 900f)
 		{
 			return 2;
 		}
 
-		if (viewportWidth < 1320f)
+		if (Inventory?.Weapons.Count > 0)
 		{
-			return 3;
+			return Inventory.Weapons.Count;
 		}
 
 		return 5;
+	}
+
+	private int GetPauseSectionColumnCount()
+	{
+		return GetViewportRect().Size.X < 1080f ? 1 : 2;
 	}
 
 	private Vector2 GetWeaponCardSize()
@@ -801,14 +940,24 @@ public partial class WeaponHud : Control
 		float viewportWidth = GetViewportRect().Size.X;
 		if (viewportWidth < 720f)
 		{
-			return new Vector2(250f, 350f);
+			return new Vector2(220f, 300f);
 		}
 
-		if (viewportWidth < 980f)
+		if (viewportWidth < 900f)
 		{
-			return new Vector2(220f, 360f);
+			return new Vector2(190f, 300f);
 		}
 
-		return new Vector2(180f, 370f);
+		if (viewportWidth < 1100f)
+		{
+			return new Vector2(148f, 304f);
+		}
+
+		if (viewportWidth < 1360f)
+		{
+			return new Vector2(164f, 312f);
+		}
+
+		return new Vector2(182f, 320f);
 	}
 }
