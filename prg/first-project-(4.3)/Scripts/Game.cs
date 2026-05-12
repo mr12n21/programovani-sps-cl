@@ -5,59 +5,48 @@ using System.Collections.Generic;
 public partial class Game : Node2D
 {
 	public static Game Instance { get; private set; }
+	private const string BossPoolPrefix = "boss:";
 
 	[Export]
 	Godot.Collections.Dictionary<string, PoolObject> PoolObjects = new();
-	[Export] public float BaseSpawnInterval = 1.7f;
-	[Export] public float MinimumSpawnInterval = 0.55f;
-	[Export] public int BaseTargetEnemies = 4;
-	[Export] public int MaxTargetEnemies = 18;
-	[Export] public float BossSpawnEverySeconds = 40f;
-	[Export] public int BossSpawnEveryKills = 18;
-	[Export] public float DirectorRefillInterval = 0.45f;
+	[Export] public float BaseSpawnInterval = 1.35f;
+	[Export] public float MinimumSpawnInterval = 0.32f;
+	[Export] public int BaseTargetEnemies = 6;
+	[Export] public int MaxTargetEnemies = 24;
+	[Export] public float BossSpawnEverySeconds = 28f;
+	[Export] public int BossSpawnEveryKills = 12;
+	[Export] public float DirectorRefillInterval = 0.2f;
 	[Export] public float SpawnPadding = 220f;
 	[Export] public float EnemyRecycleDistance = 1800f;
+	[Export] public int AdditionalEnemyPoolPerType = 6;
+	[Export] public int BossPoolSizePerType = 1;
+	[Export] public int MaxConcurrentBosses = 1;
+	[Export] public int MaxSpawnBurst = 5;
 
 	private readonly Dictionary<string, Queue<Node>> _poolNodes = new();
 	private readonly Dictionary<Type, string> _objectnames = new();
+	private readonly Dictionary<Node, string> _nodePoolNames = new();
+	private readonly List<string> _regularEnemyPoolNames = new();
+	private readonly List<string> _bossEnemyPoolNames = new();
 	private PackedScene _diamondPickupScene;
 	private Timer _spawnTimer;
 	private Player _player;
 	private WeaponInventory _inventory;
 	private WeaponHud _weaponHud;
-	private int _activeEnemies = 0;
+	private int _activeRegularEnemies = 0;
+	private int _activeBosses = 0;
 	private int _kills = 0;
 	private int _bossesSpawned = 0;
-	private bool _bossAlive = false;
 	private float _runTime = 0f;
 	private float _refillCooldown = 0f;
 	private Rect2 _worldBounds = new Rect2();
-	private int _enemyPoolCapacity = 0;
+	private int _regularEnemyPoolCapacity = 0;
+	private int _bossEnemyPoolCapacity = 0;
 	
 	public override void _Ready()
 	{
-		foreach (var keyValuePair in PoolObjects)
-		{
-			PoolObject poolObject = keyValuePair.Value;
-			string name = keyValuePair.Key;
-			Queue<Node> nodes = new();
-			_poolNodes[name] = nodes;
-			for (int i = 0; i < poolObject.PoolSize; i++)
-			{
-				Node node = poolObject.Prefab.Instantiate();
-				if (node is not IPoolable poolable) break;
-				if (node is Enemy)
-				{
-					_enemyPoolCapacity += 1;
-				}
-				_objectnames[node.GetType()] = name;
-				nodes.Enqueue(node);
-				AddChild(node);
-				poolable.Init();
-				
-			}
-		}
 		Instance = this;
+		BuildPools();
 		_player = GetNodeOrNull<Player>("Player");
 		_inventory = GetNodeOrNull<WeaponInventory>("WeaponInventory");
 		_weaponHud = GetNodeOrNull<CanvasLayer>("CanvasLayer")?.GetNodeOrNull<WeaponHud>("WeaponHud");
@@ -77,6 +66,105 @@ public partial class Game : Node2D
 		ApplyScenePalette();
 		UpdateDirectorStatus();
 		WarmupSpawn();
+	}
+
+	private void BuildPools()
+	{
+		foreach (var keyValuePair in PoolObjects)
+		{
+			PoolObject poolObject = keyValuePair.Value;
+			if (poolObject?.Prefab == null || poolObject.PoolSize == 0)
+			{
+				continue;
+			}
+
+			InitializePool(keyValuePair.Key, poolObject);
+		}
+	}
+
+	private void InitializePool(string poolName, PoolObject poolObject)
+	{
+		Node firstNode = poolObject.Prefab.Instantiate();
+		if (firstNode is not IPoolable)
+		{
+			firstNode.Free();
+			return;
+		}
+
+		bool enemyPool = firstNode is Enemy;
+		int totalRegularNodes = (int)poolObject.PoolSize + (enemyPool ? AdditionalEnemyPoolPerType : 0);
+		if (enemyPool)
+		{
+			_regularEnemyPoolNames.Add(poolName);
+		}
+
+		RegisterPooledNode(poolName, firstNode, enemyPool, false);
+		for (int i = 1; i < totalRegularNodes; i++)
+		{
+			Node node = poolObject.Prefab.Instantiate();
+			if (node is not IPoolable)
+			{
+				node.Free();
+				break;
+			}
+
+			RegisterPooledNode(poolName, node, enemyPool, false);
+		}
+
+		if (!enemyPool || BossPoolSizePerType <= 0)
+		{
+			return;
+		}
+
+		string bossPoolName = GetBossPoolName(poolName);
+		_bossEnemyPoolNames.Add(bossPoolName);
+		for (int i = 0; i < BossPoolSizePerType; i++)
+		{
+			Node node = poolObject.Prefab.Instantiate();
+			if (node is not IPoolable)
+			{
+				node.Free();
+				break;
+			}
+
+			RegisterPooledNode(bossPoolName, node, true, true);
+		}
+	}
+
+	private void RegisterPooledNode(string poolName, Node node, bool enemyNode, bool bossReserve)
+	{
+		if (!_poolNodes.TryGetValue(poolName, out Queue<Node> nodes))
+		{
+			nodes = new Queue<Node>();
+			_poolNodes[poolName] = nodes;
+		}
+
+		nodes.Enqueue(node);
+		_nodePoolNames[node] = poolName;
+		if (!bossReserve)
+		{
+			_objectnames.TryAdd(node.GetType(), poolName);
+		}
+
+		if (enemyNode)
+		{
+			if (bossReserve)
+			{
+				_bossEnemyPoolCapacity += 1;
+			}
+			else
+			{
+				_regularEnemyPoolCapacity += 1;
+			}
+		}
+
+		AddChild(node);
+		((IPoolable)node).Init();
+	}
+
+	private static string GetBossPoolName(string poolName)
+	{
+		return $"{BossPoolPrefix}{poolName}";
 	}
 
 	public Node GetPoolObject(string name)
@@ -102,8 +190,28 @@ public partial class Game : Node2D
 
 	public void EnqueuePoolObject<T>(T node) where T : Node
 	{
-		if (!_objectnames.ContainsKey(typeof(T))) return;
-		EnqueuePoolObject(_objectnames[typeof(T)], node);
+		if (node == null)
+		{
+			return;
+		}
+
+		if (_nodePoolNames.TryGetValue(node, out string assignedPoolName))
+		{
+			EnqueuePoolObject(assignedPoolName, node);
+			return;
+		}
+
+		Type nodeType = node.GetType();
+		if (_objectnames.TryGetValue(nodeType, out string poolName))
+		{
+			EnqueuePoolObject(poolName, node);
+			return;
+		}
+
+		if (_objectnames.TryGetValue(typeof(T), out poolName))
+		{
+			EnqueuePoolObject(poolName, node);
+		}
 	}
 
 	public void SpawnEnemy()
@@ -114,24 +222,8 @@ public partial class Game : Node2D
 			return;
 		}
 
-		int targetEnemies = GetTargetEnemyCount();
-		int missingEnemies = Mathf.Max(0, targetEnemies - _activeEnemies);
-		int attempts = Mathf.Clamp(missingEnemies == 0 ? 1 : missingEnemies, 1, 3);
-
-		for (int i = 0; i < attempts; i++)
-		{
-			if (ShouldSpawnBoss() && SpawnConfiguredEnemy(true))
-			{
-				break;
-			}
-
-			if (_activeEnemies >= targetEnemies)
-			{
-				break;
-			}
-
-			SpawnConfiguredEnemy(false);
-		}
+		TrySpawnBoss();
+		RefillRegularWave();
 	}
 
 	public override void _Process(double delta)
@@ -144,7 +236,7 @@ public partial class Game : Node2D
 			_spawnTimer.WaitTime = GetCurrentSpawnInterval();
 		}
 
-		if (_refillCooldown <= 0f && _activeEnemies < GetTargetEnemyCount())
+		if (_refillCooldown <= 0f && NeedsDirectorRefill())
 		{
 			_refillCooldown = DirectorRefillInterval;
 			SpawnEnemy();
@@ -155,21 +247,29 @@ public partial class Game : Node2D
 
 	public void RegisterEnemySpawn(Enemy enemy)
 	{
-		_activeEnemies += 1;
 		if (enemy.IsBoss)
 		{
-			_bossAlive = true;
+			_activeBosses += 1;
 		}
+		else
+		{
+			_activeRegularEnemies += 1;
+		}
+
 		UpdateDirectorStatus();
 	}
 
 	public void RegisterEnemyReturned(Enemy enemy)
 	{
-		_activeEnemies = Mathf.Max(0, _activeEnemies - 1);
 		if (enemy.IsBoss)
 		{
-			_bossAlive = false;
+			_activeBosses = Mathf.Max(0, _activeBosses - 1);
 		}
+		else
+		{
+			_activeRegularEnemies = Mathf.Max(0, _activeRegularEnemies - 1);
+		}
+
 		UpdateDirectorStatus();
 	}
 
@@ -216,40 +316,38 @@ public partial class Game : Node2D
 	{
 		_kills += 1;
 
-		if (enemy.IsBoss)
-		{
-			_bossAlive = false;
-		}
-
 		SpawnDiamondBurst(enemy.GlobalPosition, enemy.DiamondReward);
 		UpdateDirectorStatus();
 	}
 
 	private void WarmupSpawn()
 	{
-		for (int i = 0; i < Mathf.Min(3, BaseTargetEnemies); i++)
+		int warmupCount = Mathf.Min(GetTargetEnemyCount(), BaseTargetEnemies);
+		for (int i = 0; i < warmupCount; i++)
 		{
-			SpawnConfiguredEnemy(false);
+			if (!SpawnConfiguredEnemy(false))
+			{
+				break;
+			}
 		}
 	}
 
 	private bool SpawnConfiguredEnemy(bool boss)
 	{
 		EnsureReferences();
-		Enemy enemy = RequestEnemyFromPool();
+		Enemy enemy = RequestEnemyFromPool(boss);
 		if (enemy == null || _player == null)
 		{
 			return false;
 		}
 
-		int intensity = GetDifficultyTier() + (boss ? 2 : 0);
+		int intensity = GetDifficultyTier() + (boss ? 3 : 0);
 		enemy.ConfigureSpawn(_player, intensity, boss);
 		enemy.SetSpawnPosition(GetEnemySpawnPosition(_player.GlobalPosition, boss));
 		enemy.Activate();
 
 		if (boss)
 		{
-			_bossAlive = true;
 			_bossesSpawned += 1;
 			SpawnBossEscortWave();
 		}
@@ -257,33 +355,68 @@ public partial class Game : Node2D
 		return true;
 	}
 
-	private Enemy RequestEnemyFromPool()
+	private Enemy RequestEnemyFromPool(bool boss)
 	{
-		int randomEnemy = (int)(GD.Randi() % 2);
-		Enemy enemy;
-		if (randomEnemy == 0)
+		List<string> poolNames = boss ? _bossEnemyPoolNames : _regularEnemyPoolNames;
+		if (poolNames.Count == 0)
 		{
-			enemy = GetPoolObject<MeleeEnemy>();
-			if (enemy == null) enemy = GetPoolObject<RangeEnemy>();
-		}
-		else
-		{
-			enemy = GetPoolObject<RangeEnemy>();
-			if (enemy == null) enemy = GetPoolObject<MeleeEnemy>();
+			return null;
 		}
 
-		return enemy;
+		int startIndex = (int)(GD.Randi() % (uint)poolNames.Count);
+		for (int offset = 0; offset < poolNames.Count; offset++)
+		{
+			string poolName = poolNames[(startIndex + offset) % poolNames.Count];
+			if (GetPoolObject(poolName) is Enemy enemy)
+			{
+				return enemy;
+			}
+		}
+
+		return null;
+	}
+
+	private void TrySpawnBoss()
+	{
+		if (ShouldSpawnBoss())
+		{
+			SpawnConfiguredEnemy(true);
+		}
+	}
+
+	private void RefillRegularWave()
+	{
+		int missingEnemies = Mathf.Max(0, GetTargetEnemyCount() - _activeRegularEnemies);
+		if (missingEnemies <= 0)
+		{
+			return;
+		}
+
+		int desiredBurst = 1 + GetDifficultyTier() / 3;
+		int attempts = Mathf.Clamp(Mathf.Min(missingEnemies, desiredBurst), 1, MaxSpawnBurst);
+		for (int i = 0; i < attempts; i++)
+		{
+			if (!SpawnConfiguredEnemy(false))
+			{
+				break;
+			}
+		}
+	}
+
+	private bool NeedsDirectorRefill()
+	{
+		return _activeRegularEnemies < GetTargetEnemyCount() || ShouldSpawnBoss();
 	}
 
 	private int GetDifficultyTier()
 	{
-		return 1 + (int)(_runTime / 28f) + (_kills / 10) + _bossesSpawned * 2;
+		return 1 + (int)(_runTime / 20f) + (_kills / 8) + _bossesSpawned * 2;
 	}
 
 	private int GetTargetEnemyCount()
 	{
-		int targetEnemies = BaseTargetEnemies + (int)(_runTime / 18f) + (_kills / 6) + _bossesSpawned;
-		int capacityLimit = _enemyPoolCapacity > 0 ? _enemyPoolCapacity : MaxTargetEnemies;
+		int targetEnemies = BaseTargetEnemies + (int)(_runTime / 12f) + (_kills / 4) + _bossesSpawned * 2;
+		int capacityLimit = _regularEnemyPoolCapacity > 0 ? _regularEnemyPoolCapacity : MaxTargetEnemies;
 		int maxAllowed = Mathf.Min(MaxTargetEnemies, capacityLimit);
 		int minAllowed = Mathf.Min(BaseTargetEnemies, maxAllowed);
 		return Mathf.Clamp(targetEnemies, minAllowed, maxAllowed);
@@ -291,13 +424,13 @@ public partial class Game : Node2D
 
 	private float GetCurrentSpawnInterval()
 	{
-		float spawnInterval = BaseSpawnInterval - _runTime * 0.02f - _kills * 0.012f;
+		float spawnInterval = BaseSpawnInterval - _runTime * 0.03f - _kills * 0.018f - _bossesSpawned * 0.08f;
 		return Mathf.Max(MinimumSpawnInterval, spawnInterval);
 	}
 
 	private bool ShouldSpawnBoss()
 	{
-		if (_bossAlive)
+		if (_activeBosses >= MaxConcurrentBosses || _bossEnemyPoolCapacity == 0)
 		{
 			return false;
 		}
@@ -381,10 +514,15 @@ public partial class Game : Node2D
 
 	private void SpawnBossEscortWave()
 	{
-		int escorts = Mathf.Clamp(1 + _bossesSpawned, 1, 4);
-		for (int i = 0; i < escorts && _activeEnemies < GetTargetEnemyCount(); i++)
+		int escorts = Mathf.Clamp(2 + _bossesSpawned, 2, 6);
+		int availableSlots = Mathf.Max(0, GetTargetEnemyCount() - _activeRegularEnemies);
+		int spawnCount = Mathf.Min(escorts, availableSlots);
+		for (int i = 0; i < spawnCount; i++)
 		{
-			SpawnConfiguredEnemy(false);
+			if (!SpawnConfiguredEnemy(false))
+			{
+				break;
+			}
 		}
 	}
 
@@ -424,9 +562,9 @@ public partial class Game : Node2D
 			return;
 		}
 
-		string status = _bossAlive
-			? $"BOSS WAVE  LVL {GetDifficultyTier()}"
-			: $"WAVE {GetDifficultyTier()}  {_activeEnemies}/{GetTargetEnemyCount()}";
+		string status = _activeBosses > 0
+			? $"BOSS WAVE  LVL {GetDifficultyTier()}  ENEMIES {_activeRegularEnemies}/{GetTargetEnemyCount()}  BOSS {_activeBosses}"
+			: $"WAVE {GetDifficultyTier()}  ENEMIES {_activeRegularEnemies}/{GetTargetEnemyCount()}";
 		_weaponHud.SetDirectorStatus(status);
 	}
 }
